@@ -25,7 +25,7 @@ export async function ensureSeeded(db: D1Database, timezone = 'Europe/Kyiv', ini
         `INSERT INTO members (id, name, role, email, avatar_emoji, accent_color, preferred_lang, sort_order, title_uk, title_en)
          VALUES (?, ?, ?, NULL, ?, ?, 'uk', ?, ?, ?)`,
       )
-      .bind('parent-2', 'Мама', 'parent', '🌿', 'terracotta', 2, 'Хранителька дому', 'Home Keeper'),
+      .bind('parent-2', 'Танюша', 'parent', '🌿', 'terracotta', 2, 'Хранителька дому', 'Home Keeper'),
     db
       .prepare(
         `INSERT INTO members (id, name, role, email, avatar_emoji, accent_color, preferred_lang, sort_order, title_uk, title_en)
@@ -37,7 +37,7 @@ export async function ensureSeeded(db: D1Database, timezone = 'Europe/Kyiv', ini
         `INSERT INTO members (id, name, role, email, avatar_emoji, accent_color, preferred_lang, sort_order, title_uk, title_en)
          VALUES (?, ?, ?, NULL, ?, ?, 'uk', ?, ?, ?)`,
       )
-      .bind('child-2', 'Молодший', 'child', '🦉', 'amber', 4, 'Новачок', 'Rookie'),
+      .bind('child-2', 'Ясенʼяр', 'child', '🦉', 'amber', 4, 'Новачок', 'Rookie'),
 
     // Starter recurring templates for Child 1 (Orest)
     db

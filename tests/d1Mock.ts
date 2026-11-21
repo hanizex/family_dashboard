@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
@@ -8,11 +8,13 @@ import { resolve } from 'node:path';
  */
 export function createTestD1(): D1Database {
   const sqlite = new DatabaseSync(':memory:');
-  const migrationSql = readFileSync(
-    resolve(process.cwd(), 'migrations/0001_initial.sql'),
-    'utf-8',
-  );
-  sqlite.exec(migrationSql);
+  const migrationsDir = resolve(process.cwd(), 'migrations');
+  const migrationFiles = readdirSync(migrationsDir)
+    .filter((f) => f.endsWith('.sql'))
+    .sort();
+  for (const file of migrationFiles) {
+    sqlite.exec(readFileSync(resolve(migrationsDir, file), 'utf-8'));
+  }
 
   const makeStatement = (sql: string, params: unknown[] = []): D1PreparedStatement => {
     const stmt: D1PreparedStatement = {
