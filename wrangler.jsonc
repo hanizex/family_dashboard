@@ -13,7 +13,7 @@
     {
       "binding": "DB",
       "database_name": "family_dashboard_db",
-      "database_id": "REPLACE_WITH_PROD_D1_DATABASE_ID",
+      "database_id": "2b05ae42-667e-48d1-bf69-a0c2579d25aa",
       "migrations_dir": "migrations"
     }
   ],
@@ -33,7 +33,7 @@
         {
           "binding": "DB",
           "database_name": "family_dashboard_db_staging",
-          "database_id": "REPLACE_WITH_STAGING_D1_DATABASE_ID",
+          "database_id": "b7ed6f23-abef-4160-8669-dc04ceb7f3f9",
           "migrations_dir": "migrations"
         }
       ],
