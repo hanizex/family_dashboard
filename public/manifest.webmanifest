@@ -1,0 +1,19 @@
+{
+  "name": "Сімейний штаб — Family Dashboard",
+  "short_name": "Сімейний штаб",
+  "description": "Спільні щоденні справи, перевірка завдань батьками та контроль екранного часу.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f6f3ed",
+  "theme_color": "#2d5a47",
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

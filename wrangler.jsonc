@@ -1,0 +1,50 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "family-dashboard",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-01-15",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "family_dashboard_db",
+      "database_id": "REPLACE_WITH_PROD_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    // Runs daily at 03:00 UTC (05:00/06:00 Europe/Kyiv) to materialize today's recurring tasks
+    "crons": ["0 3 * * *"]
+  },
+  "vars": {
+    "APP_ENV": "production",
+    "FAMILY_TIMEZONE": "Europe/Kyiv",
+    "ALLOW_DEV_LOGIN": "false"
+  },
+  "env": {
+    "staging": {
+      "name": "family-dashboard-staging",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "family_dashboard_db_staging",
+          "database_id": "REPLACE_WITH_STAGING_D1_DATABASE_ID",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "triggers": {
+        "crons": ["0 3 * * *"]
+      },
+      "vars": {
+        "APP_ENV": "staging",
+        "FAMILY_TIMEZONE": "Europe/Kyiv",
+        "ALLOW_DEV_LOGIN": "true"
+      }
+    }
+  }
+}

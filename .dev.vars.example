@@ -1,0 +1,20 @@
+# Copy this file to .dev.vars for local development with `wrangler dev`
+# Never commit .dev.vars to Git!
+
+# Enable quick role switcher in local dev (set to "false" in production)
+ALLOW_DEV_LOGIN=true
+
+# Secret used to sign HttpOnly session cookies (generate 32+ random hex chars)
+SESSION_SECRET=local-dev-change-this-to-a-long-random-secret-key
+
+# Google OAuth 2.0 Credentials (from Google Cloud Console -> APIs & Services -> Credentials)
+# Authorized redirect URI: http://localhost:8787/api/auth/google/callback (local)
+# and https://<your-worker>.workers.dev/api/auth/google/callback (staging/prod)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Optional: first admin Gmail to auto-assign as Parent 1 if allowlist isn't configured yet
+INITIAL_ADMIN_EMAIL=
+
+# Reserved for Phase 3 (Telegram Bot notifications)
+TELEGRAM_BOT_TOKEN=

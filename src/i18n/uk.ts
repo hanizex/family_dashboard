@@ -1,0 +1,211 @@
+export const uk = {
+  appName: 'Сімейний штаб',
+  appTagline: 'Спільні справи, перевірка батьками та чесний екранний час',
+
+  // Auth & Login
+  loginTitle: 'Вхід у Сімейний штаб',
+  loginSubtitle: 'Увійдіть через сімейний Google-акаунт або код пристрою від батьків.',
+  signInWithGoogle: 'Увійти через Google',
+  deviceCodeTab: 'Код пристрою',
+  googleTab: 'Google-акаунт',
+  deviceCodeHint: 'Якщо Google Family Link обмежує вхід на телефоні дитини — візьміть 6-значний код у батьків в розділі «Сімʼя».',
+  deviceCodePlaceholder: 'Наприклад: K7M9P2',
+  deviceLabelPlaceholder: 'Назва пристрою (напр. Телефон Ореста)',
+  signInWithCode: 'Підключити пристрій',
+  devLoginHeading: 'Швидкий вхід (тестовий / staging режим)',
+  devLoginNote: 'У продакшені цей блок автоматично вимкнено.',
+  logout: 'Вийти',
+  authErrors: {
+    email_not_allowed: 'Цей Google-акаунт не додано до списку сімʼї. Попросіть батьків додати ваш Gmail у розділі «Сімʼя».',
+    google_not_configured: 'Google-вхід ще не налаштований на сервері. Скористайтесь кодом пристрою або локальним входом.',
+    invalid_state: 'Сесія входу застаріла. Спробуйте ще раз.',
+    oauth_failed: 'Не вдалося завершити вхід через Google. Спробуйте ще раз.',
+    invalid_code: 'Код має складатися з 6 символів.',
+    code_expired: 'Код невірний або вже недійсний. Попросіть батьків створити новий.',
+  },
+
+  // Roles
+  roleParent: 'Батьки · Адмін',
+  roleChild: 'Дитина',
+
+  // Navigation
+  navBoard: 'Дошка',
+  navApprovals: 'Перевірка',
+  navRoutines: 'Рутини',
+  navRequests: 'Мої запити',
+  navFamily: 'Сімʼя',
+
+  // Date Bar
+  today: 'Сьогодні',
+  yesterday: 'Вчора',
+  tomorrow: 'Завтра',
+  syncedJustNow: 'Оновлено щойно',
+  syncing: 'Оновлення...',
+  refresh: 'Оновити',
+
+  // Actions
+  addTask: 'Додати справу',
+  newRequest: 'Запит батькам',
+  save: 'Зберегти',
+  cancel: 'Скасувати',
+  delete: 'Видалити',
+  edit: 'Редагувати',
+  close: 'Закрити',
+  allMembers: 'Вся сімʼя',
+  filterOnlyPending: 'Лише на перевірці',
+
+  // Screen time gate
+  screenTimeGateTitle: 'Шлях до екранного часу',
+  screenTimeUnlocked: 'Екранний час відкрито!',
+  screenTimeWaiting: 'Очікує перевірки батьків',
+  screenTimeLocked: 'Ще залишилось справ',
+  mandatoryProgress: '{done} з {total} обовʼязкових',
+  extraCompleted: 'Додаткові квести: {done}/{total}',
+  noMandatoryTasks: 'На сьогодні обовʼязкових справ немає',
+
+  // Task Sections & Badges
+  sectionMandatory: 'Обовʼязково до екрану',
+  sectionExtra: 'Додаткові справи / квести',
+  sectionChecklist: 'Список справ',
+  emptyTasks: 'На цей день справ поки немає',
+  mandatoryBadge: 'Обовʼязково',
+  extraBadge: 'Квест',
+  xpHint: '+{xp} XP',
+
+  // Task Statuses
+  statusTodo: 'Потрібно зробити',
+  statusPendingReview: 'На перевірці (100%)',
+  statusPartialReview: 'Частково ({pct}%) · на перевірці',
+  statusPartialApproved: 'Зараховано {pct}% · потрібно доробити',
+  statusApproved: 'Підтверджено',
+  statusRejected: 'Повернуто на доопрацювання',
+
+  // Child Actions
+  markDone: 'Виконано',
+  markPartly: 'Частково',
+  resubmit: 'Надіслати знову',
+  requestChange: 'Запит',
+
+  // Parent Actions
+  confirmFull: 'Підтвердити',
+  confirmPartial: 'Зарахувати частково',
+  rejectTask: 'Відхилити',
+  markParentDone: 'Виконано',
+  markParentUndo: 'Повернути в план',
+
+  // Report Modal (Child)
+  reportModalTitle: 'Звіт про виконання',
+  reportDoneHint: 'Додайте короткий коментар (необовʼязково) — батьки побачать його під час перевірки.',
+  reportPartialHint: 'Вкажіть приблизно, скільки вже зроблено, та що залишилося.',
+  completionPercent: 'Готовність',
+  noteLabel: 'Коментар',
+  notePlaceholder: 'Наприклад: зробив математику, залишилось англійську...',
+  submitReport: 'Надіслати батькам',
+
+  // Reject Modal (Parent)
+  rejectModalTitle: 'Повернути на доопрацювання',
+  rejectReasonLabel: 'Що потрібно доробити?',
+  rejectReasonPlaceholder: 'Коротко поясніть дитині, що не завершено...',
+  rejectQuickReasons: [
+    'Не прибрано до кінця',
+    'Потрібно перевірити ще раз',
+    'Виконано не все завдання',
+  ],
+  confirmReject: 'Повернути дитині',
+
+  // Add/Edit Task Modal (Parent)
+  addTaskTitle: 'Нова справа',
+  editTaskTitle: 'Редагувати справу',
+  taskTitleLabel: 'Назва справи',
+  taskTitlePlaceholder: 'Наприклад: Купити продукти або Помити посуд',
+  taskDescLabel: 'Деталі (необовʼязково)',
+  taskDescPlaceholder: 'Уточнення або підказка...',
+  assigneeLabel: 'Для кого',
+  dateLabel: 'Дата',
+  categoryLabel: 'Категорія',
+  mandatoryToggle: 'Обовʼязково перед екранним часом',
+  xpValueLabel: 'Досвід (XP — для етапу гейміфікації)',
+  categories: {
+    school: 'Навчання',
+    chores: 'Дім і порядок',
+    health: 'Спорт і здоровʼя',
+    pet: 'Догляд за тваринкою',
+    errands: 'Покупки й доручення',
+    extra: 'Додатковий квест',
+    general: 'Загальне',
+  },
+
+  // Change Requests
+  requestModalTitle: 'Запит до батьків',
+  requestTypeLabel: 'Тип запиту',
+  requestTypes: {
+    reschedule: 'Перенести справу на інший день',
+    modify: 'Змінити умови справи',
+    new_task: 'Запропонувати нову справу / квест',
+    other: 'Інше прохання',
+  },
+  requestTaskRef: 'Стосується справи',
+  requestProposedDate: 'На яку дату перенести',
+  requestProposedTitle: 'Назва запропонованої справи',
+  requestMessageLabel: 'Повідомлення батькам',
+  requestMessagePlaceholder: 'Напишіть, чому просите про зміну або що пропонуєте...',
+  sendRequest: 'Надіслати запит',
+  requestStatusPending: 'Очікує відповіді',
+  requestStatusApproved: 'Схвалено',
+  requestStatusDeclined: 'Відхилено',
+  approveRequest: 'Схвалити',
+  declineRequest: 'Відхилити',
+  parentReplyPlaceholder: 'Коротка відповідь дитині (необовʼязково)...',
+  noRequests: 'Поки немає жодного запиту',
+
+  // Approvals Inbox
+  approvalsTitle: 'Черга перевірки для батьків',
+  approvalsSubtitle: 'Підтверджуйте виконані справи дітей та відповідайте на їхні запити.',
+  pendingTasksHeading: 'Справи на перевірці',
+  pendingRequestsHeading: 'Запити від дітей',
+  allCaughtUp: 'Все перевірено! Нових звітів наразі немає.',
+  reportedByChild: 'Коментар дитини',
+  parentFeedback: 'Коментар батьків',
+
+  // Routines (Recurring Templates)
+  routinesTitle: 'Щоденні та регулярні рутини',
+  routinesSubtitle: 'Автоматично створюються щоранку о 06:00 (Київ) без ручного переписування на папері.',
+  addRoutine: 'Нова рутина',
+  scheduleLabel: 'Розклад',
+  schedules: {
+    daily: 'Щодня',
+    weekdays: 'Будні (Пн–Пт)',
+    weekends: 'Вихідні (Сб–Нд)',
+    custom_days: 'Обрані дні тижня',
+    every_n_days: 'Кожні N днів',
+  },
+  everyNDaysLabel: 'Повторювати кожні (днів)',
+  everyNDaysBadge: 'Кожні {n} дн.',
+  weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'],
+  routineActive: 'Активна',
+  routinePaused: 'Пауза',
+  noRoutines: 'Регулярних рутин ще немає.',
+
+  // Family Settings
+  familyTitle: 'Налаштування сімʼї та доступ',
+  familySubtitle: 'Керуйте профілями 4 учасників, Gmail-доступом та кодами пристроїв для дітей.',
+  nameLabel: 'Імʼя',
+  emailLabel: 'Google Email (для входу)',
+  emailPlaceholder: 'name@gmail.com',
+  avatarLabel: 'Емодзі',
+  telegramLabel: 'Telegram Chat ID (для Етапу 3)',
+  telegramPlaceholder: 'Буде підключено на наступному етапі',
+  generateDeviceCode: 'Код для пристрою',
+  deviceCodeGenerated: 'Одноразовий код (діє 15 хв):',
+  revokeDevices: 'Вийти з усіх пристроїв',
+  revokeConfirm: 'Скинути всі активні сесії для {name}?',
+  savedToast: 'Збережено',
+  roadmapBannerTitle: 'Наступні етапи вже закладені в архітектуру',
+  roadmapPhase3: 'Етап 3 (далі): Telegram-сповіщення про звіти дітей + автосинк Chess.com, Duolingo та шкільного кабінету.',
+  roadmapPhase2: 'Етап 2 (після інтеграцій): Повна гейміфікація — рівні, титули, бейджі, банк екранного часу та щотижневі/щомісячні бонуси.',
+
+  // Errors
+  genericError: 'Щось пішло не так. Спробуйте ще раз.',
+};
+
+export type Translations = typeof uk;
