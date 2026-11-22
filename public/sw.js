@@ -31,11 +31,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('/', copy)).catch(() => undefined);
+          if (url.pathname === '/') {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/', copy)).catch(() => undefined);
+          }
           return response;
         })
-        .catch(() => caches.match('/')),
+        .catch(() => caches.match(url.pathname === '/' ? '/' : request)),
     );
     return;
   }

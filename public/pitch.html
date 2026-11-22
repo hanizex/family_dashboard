@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Сімейний штаб — для Танюши</title>
+  <meta name="description" content="Наш домашній помічник для спокійного порядку: що вже працює, ідея мотивації без тиску та спільна дошка домашніх справ." />
+  <meta property="og:title" content="🏡 Сімейний штаб — для Танюши" />
+  <meta property="og:description" content="Короткий огляд того, над чим я зараз працюю для нашої сімʼї, плюс ідея мотивації й спільної дошки справ на обговорення." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#FAF7F2" />
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+  <style>
+    :root {
+      --bg: #FAF7F2;
+      --surface: #FFFFFF;
+      --surface-soft: #F4EFE6;
+      --surface-tint: #F1F6F2;
+      --ink: #1F2933;
+      --muted: #5A6570;
+      --border: #E7DFD3;
+      --primary: #2D6A4F;
+      --primary-hover: #24553F;
+      --primary-soft: #E6F2EC;
+      --amber: #B45309;
+      --amber-soft: #FEF3C7;
+      --coral: #B84A39;
+      --coral-soft: #FDECE9;
+      --shadow-sm: 0 2px 8px rgba(31, 41, 51, 0.04);
+      --shadow-md: 0 8px 24px rgba(31, 41, 51, 0.06);
+      --radius: 18px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 20px 16px 56px;
+    }
+
+    @media (min-width: 640px) {
+      .page {
+        padding: 32px 24px 72px;
+      }
+    }
+
+    /* Header */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      border: 1px solid #CBE3D7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: 10px;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+
+    .nav a:hover {
+      border-color: var(--primary);
+    }
+
+    .nav a.nav-cta {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .nav a.nav-cta:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Pills & Badges */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 999px;
+      line-height: 1.3;
+    }
+
+    .pill-green {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid #C6E2D5;
+    }
+
+    .pill-amber {
+      background: var(--amber-soft);
+      color: var(--amber);
+      border: 1px solid #F6D88C;
+    }
+
+    .pill-neutral {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      font-weight: 500;
+    }
+
+    .pill-coral {
+      background: var(--coral-soft);
+      color: var(--coral);
+      border: 1px solid #F3C4BC;
+    }
+
+    /* Sections */
+    .section {
+      margin-top: 40px;
+    }
+
+    .section-head {
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      margin: 10px 0 6px;
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: -0.015em;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      max-width: 680px;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(150deg, #FFFFFF 0%, #F3F8F5 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px 20px;
+      box-shadow: var(--shadow-md);
+    }
+
+    @media (min-width: 640px) {
+      .hero {
+        padding: 36px 34px;
+      }
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      max-width: 680px;
+    }
+
+    @media (min-width: 640px) {
+      .hero h1 {
+        font-size: 35px;
+      }
+    }
+
+    .hero-lead {
+      margin: 0 0 20px;
+      font-size: 15.5px;
+      color: var(--muted);
+      max-width: 660px;
+    }
+
+    .roster {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .roster-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    /* Grids */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 680px) {
+      .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-soft {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 15.5px;
+      line-height: 1.35;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .emoji-lg {
+      font-size: 22px;
+      line-height: 1;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    /* Age Split Banner */
+    .age-split {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .age-split {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .age-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .age-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .age-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .age-card li {
+      margin-bottom: 5px;
+    }
+
+    /* Tier cards */
+    .tier-card {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .tier-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tier-name {
+      font-weight: 700;
+      font-size: 14.5px;
+    }
+
+    .tier-rewards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .note-strip {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--surface-tint);
+      border: 1px solid #D3E6DC;
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+
+    /* Bullet list */
+    .clean-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .clean-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.8px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .clean-list li .ico {
+      font-size: 16px;
+      line-height: 1.3;
+      flex-shrink: 0;
+    }
+
+    .clean-list li strong {
+      color: var(--ink);
+    }
+
+    /* Interactive Bounty Demo */
+    .demo-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px 18px;
+      box-shadow: var(--shadow-md);
+    }
+
+    @media (min-width: 640px) {
+      .demo-box {
+        padding: 26px 26px;
+      }
+    }
+
+    .demo-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .btn-ghost {
+      background: var(--surface-soft);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .btn-ghost:hover {
+      color: var(--ink);
+      border-color: var(--primary);
+    }
+
+    .goal-panel {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .goal-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13.5px;
+      margin-bottom: 10px;
+    }
+
+    .goal-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .stat-xp { color: var(--primary); }
+    .stat-coins { color: var(--amber); }
+    .stat-pct { color: var(--primary); }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #E2D9CB;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2D6A4F, #40916C);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .goal-caption {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .bounty-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 11px;
+    }
+
+    @media (min-width: 580px) {
+      .bounty-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 820px) {
+      .bounty-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .bounty-card {
+      background: var(--surface-soft);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .bounty-card.has-count {
+      background: var(--primary-soft);
+      border-color: #7BB69B;
+    }
+
+    .bounty-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .bounty-title {
+      font-size: 13.8px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.35;
+      margin-top: 6px;
+    }
+
+    .bounty-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .bounty-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(31, 41, 51, 0.08);
+    }
+
+    .bounty-reward {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .counter-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-take {
+      border: 1px solid var(--primary);
+      background: var(--surface);
+      color: var(--primary);
+      border-radius: 9px;
+      padding: 5px 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-take:hover,
+    .btn-take.active {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-minus {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 8px;
+      width: 26px;
+      height: 26px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-minus:hover {
+      border-color: var(--coral);
+      color: var(--coral);
+    }
+
+    /* Future card */
+    .future-card {
+      background: var(--surface);
+      border: 1px dashed #CFC4B4;
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    /* Feedback section */
+    .feedback-box {
+      background: linear-gradient(160deg, #FFFFFF 0%, #FBF5EA 100%);
+      border: 1px solid #E5D7BF;
+      border-radius: 22px;
+      padding: 22px 18px;
+      box-shadow: var(--shadow-md);
+    }
+
+    @media (min-width: 640px) {
+      .feedback-box {
+        padding: 28px 30px;
+      }
+    }
+
+    .q-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 15px 16px;
+      margin-bottom: 12px;
+    }
+
+    .q-title {
+      font-weight: 700;
+      font-size: 14.5px;
+      margin-bottom: 10px;
+    }
+
+    .choices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .choice-btn {
+      background: var(--surface-soft);
+      color: var(--ink);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .choice-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .choice-btn[aria-pressed="true"] {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .notes-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      background: var(--surface-soft);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--ink);
+      resize: vertical;
+    }
+
+    .notes-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--surface);
+    }
+
+    .feedback-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+    }
+
+    .copy-msg {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      display: none;
+    }
+
+    .copy-msg.show {
+      display: inline;
+    }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Top Navigation -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon">🏡</span>
+        <div>
+          <div class="brand-title">Сімейний штаб</div>
+          <div class="brand-sub">Домашній проєкт · огляд для Танюши</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#live">Що вже працює</a>
+        <a href="#gamification">Мотивація</a>
+        <a href="#bounty-demo">Спільна дошка</a>
+        <a href="#feedback" class="nav-cta">Твоя думка 💛</a>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-badges">
+        <span class="pill pill-green">💛 Для Танюши — подивитися й обговорити</span>
+        <span class="pill pill-neutral">📱 Працює на телефоні та ноутбуці · 0 грн/міс</span>
+      </div>
+
+      <h1>Спокійний сімейний порядок — без щоденних нагадувань по десять разів</h1>
+
+      <p class="hero-lead">
+        Танюша, ось над чим я зараз працюю для нашої сімʼї. Ідея проста: замість того, щоб постійно перевіряти й перепитувати,
+        у кожного є зрозумілий список справ на день, а за допомогу по дому можна заробляти досвід і приємні бонуси.
+        Це ще в процесі — дуже хочу почути твою думку, що тобі подобається, а що варто зробити інакше!
+      </p>
+
+      <div class="roster">
+        <span class="roster-label">Наша команда:</span>
+        <span class="pill pill-neutral">👨‍💻 Микола · адмін</span>
+        <span class="pill pill-neutral">💛 Танюша · адмін</span>
+        <span class="pill pill-neutral">🧑 Ясенʼяр · підліток</span>
+        <span class="pill pill-neutral">👦 Орест · 10 років</span>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <span class="emoji-lg">🧘</span>
+          <h3>Менше повторень</h3>
+          <p>Кожен бачить свій план на сьогодні й сам позначає виконане — без нашого щоденного контролю.</p>
+        </div>
+        <div class="card">
+          <span class="emoji-lg">⚖️</span>
+          <h3>Підхід за віком</h3>
+          <p>Для Ореста — прозорі правила екранного часу, для Ясенʼяра — доросла самостійність без обмежень на телефон.</p>
+        </div>
+        <div class="card">
+          <span class="emoji-lg">🤝</span>
+          <h3>Допомога за власним бажанням</h3>
+          <p>Спільна дошка домашніх справ: можна брати посуд, прибирання чи сміття хоч кілька разів на день за бонуси.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Age-appropriate section -->
+    <section class="section">
+      <div class="section-head">
+        <span class="pill pill-amber">Важливий принцип</span>
+        <h2>Різні вимоги для Ясенʼяра і для Ореста</h2>
+        <p>Система не заганяє обох в однакові рамки — правила налаштовуються під вік кожного.</p>
+      </div>
+
+      <div class="age-split">
+        <div class="age-card">
+          <div class="age-card-head">
+            <h3>👦 Орест (10 років)</h3>
+            <span class="pill pill-green">Зі шкалою екранного часу</span>
+          </div>
+          <ul>
+            <li>Чіткий і простий список обовʼязкових справ на день.</li>
+            <li>Прозора шкала екранного часу: зробив обовʼязкове → гаджет відкрито чесно, без суперечок.</li>
+            <li>Легкі перемоги, досвід і монети за старанність та допомогу по дому.</li>
+          </ul>
+        </div>
+
+        <div class="age-card">
+          <div class="age-card-head">
+            <h3>🧑 Ясенʼяр (підліток)</h3>
+            <span class="pill pill-neutral">Без обмежень на екранний час</span>
+          </div>
+          <ul>
+            <li>Жодних блокувань чи правил щодо телефону — як для дорослішого.</li>
+            <li>Спокійний власний план справ та особисті цілі.</li>
+            <li>Можливість брати домашні справи зі Спільної дошки, щоб допомагати сімʼї й заробляти бонуси.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- What Already Works -->
+    <section id="live" class="section">
+      <div class="section-head">
+        <span class="pill pill-green">Етап 1 та 3 — вже працює</span>
+        <h2>Що вже готово і працює зараз</h2>
+        <p>Додаток відкривається прямо в браузері або як іконка на екрані телефону — без зайвої реклами й підписок.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title-row">
+            <h3>📋 Щоденні справи та автоповтори</h3>
+            <span class="pill pill-green">Готово</span>
+          </div>
+          <p>
+            Справи автоматично зʼявляються за розкладом (щодня, будні, вихідні або раз на кілька днів).
+            Дитина натискає <strong>«Готово»</strong> або <strong>«Частково»</strong>, а ми підтверджуємо в один дотик — або просимо доробити.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-row">
+            <h3>🙋 Запити дітей та чесні домовленості</h3>
+            <span class="pill pill-green">Готово</span>
+          </div>
+          <p>
+            Для Ореста зверху видно шкалу обовʼязкових справ до екранного часу. А якщо хтось із дітей хоче перенести справу
+            або щось запропонувати — надсилає короткий <strong>запит батькам</strong> прямо в додатку.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-row">
+            <h3>♟️🦉 Автоперевірка Chess.com і Duolingo</h3>
+            <span class="pill pill-green">Готово</span>
+          </div>
+          <p>
+            Додаток сам перевіряє шахові задачі чи партії на Chess.com та виконані уроки в Duolingo й
+            <strong>автоматично зараховує завдання</strong> — без скріншотів і зайвих запитань.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-row">
+            <h3>🔔 Персональні сповіщення в Telegram</h3>
+            <span class="pill pill-amber">На тесті</span>
+          </div>
+          <p>
+            Підтвердження справ прямо в Telegram кнопками <strong>✅ / ❌</strong>, тихі години на ніч, термінові повідомлення
+            та власні правила — наприклад: <em>«повідом мене, коли Микола купить продукти»</em> або <em>«нагадай о 19:30, якщо справа ще не готова»</em>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gamification Proposal -->
+    <section id="gamification" class="section">
+      <div class="section-head">
+        <span class="pill pill-amber">Етап 2 — ідея на обговорення (ще не запускав)</span>
+        <h2>Мотивація, досвід і нагороди — спокійно й надовго</h2>
+        <p>
+          Перш ніж це програмувати, хочу узгодити ідею з тобою. Головна мета — щоб дітям було приємно допомагати й
+          доводити справи до кінця не 2 тижні, а в довгу — <strong>без тиску і без змагання між братами</strong>.
+        </p>
+      </div>
+
+      <!-- Daily Goal Tiers -->
+      <div class="card" style="margin-bottom: 14px;">
+        <div class="card-title-row" style="margin-bottom: 14px;">
+          <h3>1. Збалансовані цілі на день (3 рівні складності)</h3>
+          <span class="pill pill-neutral">Без перевантаження</span>
+        </div>
+
+        <div class="grid-3">
+          <div class="tier-card">
+            <div>
+              <div class="tier-top">
+                <span class="tier-name">🟢 Легкі</span>
+                <span class="pill pill-neutral">1–4 / день</span>
+              </div>
+              <p style="margin-top: 8px; font-size: 13px;">Застелити ліжко, полити квіти, 1 урок Duolingo, прибрати стіл.</p>
+            </div>
+            <div class="tier-rewards">
+              <span class="pill pill-green">+10 XP</span>
+              <span class="pill pill-amber">+1 🪙</span>
+            </div>
+          </div>
+
+          <div class="tier-card">
+            <div>
+              <div class="tier-top">
+                <span class="tier-name">🟡 Середні</span>
+                <span class="pill pill-neutral">1–3 / день</span>
+              </div>
+              <p style="margin-top: 8px; font-size: 13px;">Шахи, читання, домашнє завдання, сортування сміття.</p>
+            </div>
+            <div class="tier-rewards">
+              <span class="pill pill-green">+25 XP</span>
+              <span class="pill pill-amber">+3 🪙</span>
+            </div>
+          </div>
+
+          <div class="tier-card">
+            <div>
+              <div class="tier-top">
+                <span class="tier-name">🔴 Складні</span>
+                <span class="pill pill-neutral">1–2 / день</span>
+              </div>
+              <p style="margin-top: 8px; font-size: 13px;">Прибирання кімнати, великий проєкт, спорт, допомогти приготувати їжу.</p>
+            </div>
+            <div class="tier-rewards">
+              <span class="pill pill-green">+50 XP</span>
+              <span class="pill pill-amber">+6 🪙</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-strip">
+          ✨ <strong>Приємний бонус дня:</strong> коли всі свої обовʼязкові справи на день виконано — додається <strong>+20 XP</strong>.
+        </div>
+      </div>
+
+      <!-- Two Currencies + No Streaks -->
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-bottom: 12px;">2. Два показники — Досвід і Монети 🪙</h3>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="card-soft">
+              <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">⭐ Досвід (XP) — рівні та значки</div>
+              <p style="font-size: 13.5px;">
+                Ніколи не згорає і не «витрачається». Дає нові звання (<em>Новачок → Помічник → Майстер → Капітан штабу</em>) та значки майстерності.
+              </p>
+            </div>
+            <div class="card-soft">
+              <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">🪙 Монети — сімейний магазин бонусів</div>
+              <p style="font-size: 13.5px;">
+                Можна обмінювати на те, що реально цікаво кожному: привілеї (вибір фільму/гри/страви), кишенькові, а для Ореста — ще й додаткові хвилини екранного часу.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 12px;">3. Спокійні правила без зайвого стресу</h3>
+          <ul class="clean-list">
+            <li>
+              <span class="ico">📊</span>
+              <span><strong>Без «серій днів» (streaks):</strong> поки налагоджуємо мотивацію, жодних жорстких лічильників підряд, які шкода «збити». У фоні просто збирається спокійна статистика.</span>
+            </li>
+            <li>
+              <span class="ico">🤝</span>
+              <span><strong>Спільна ціль сімʼї замість рейтингу:</strong> діти не змагаються один проти одного, а разом заповнюють шкалу місяця (наприклад, на піцу, кіно чи нову гру).</span>
+            </li>
+            <li>
+              <span class="ico">🏅</span>
+              <span><strong>Значки за інтереси й користь:</strong> ♻️ <em>Еко-герой</em>, 🍳 <em>Шеф-кухар</em>, 🧹 <em>Хранитель порядку</em>, ♟️ <em>Шаховий стратег</em>, 🦉 <em>Поліглот</em>.</span>
+            </li>
+            <li>
+              <span class="ico">🌟</span>
+              <span><strong>Раптове «Дякую!» від батьків:</strong> можна в 1 клік подарувати бонус за доброту чи допомогу без прохання.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Bounty Board Demo -->
+    <section id="bounty-demo" class="section">
+      <div class="demo-box">
+        <div class="demo-header">
+          <div>
+            <span class="pill pill-green" style="margin-bottom: 8px;">Інтерактивний приклад · спробуй натиснути</span>
+            <h2 style="margin: 6px 0 6px; font-size: 22px;">📌 Спільна дошка домашніх справ</h2>
+            <p style="margin: 0; font-size: 14px; color: var(--muted); max-width: 600px;">
+              Ці справи відкриті для всіх — хто хоче допомогти або заробити додаткові XP і монети, просто бере їх.
+              Справи на кшталт <strong>миття посуду, прибирання чи сміття</strong> можна брати <strong>кілька разів на день</strong> — кожен раз зараховується окремо!
+            </p>
+          </div>
+          <button id="resetDemoBtn" type="button" class="btn-ghost">↺ Скинути приклад</button>
+        </div>
+
+        <div class="goal-panel">
+          <div class="goal-row">
+            <strong>🎯 Сімейна ціль місяця: вечір піци та настільної гри</strong>
+            <div class="goal-stats">
+              <span id="demoXp" class="stat-xp">⭐ +0 XP</span>
+              <span id="demoCoins" class="stat-coins">🪙 +0 монет</span>
+              <span id="demoGoalPct" class="stat-pct">72%</span>
+            </div>
+          </div>
+          <div class="progress-track">
+            <div id="demoBar" class="progress-fill" style="width: 72%;"></div>
+          </div>
+          <div id="demoStatus" class="goal-caption">
+            Натисни «+ Взяти» на будь-якій справі нижче (а на повторюваних — спробуй натиснути кілька разів!).
+          </div>
+        </div>
+
+        <div id="bountyGrid" class="bounty-grid"></div>
+      </div>
+    </section>
+
+    <!-- Future ideas -->
+    <section class="section">
+      <div class="future-card">
+        <div style="max-width: 600px;">
+          <div style="font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 4px;">Ідеї на потім (тільки якщо вирішимо, що потрібно)</div>
+          <h3 style="margin: 0 0 6px; font-size: 16.5px;">🎓 Шкільний онлайн-кабінет і підсумки тижня</h3>
+          <p style="margin: 0; font-size: 13.8px; color: var(--muted);">
+            Колись можна буде підтягувати шкільні завдання автоматично, але це зовсім не терміново — обговоримо окремо, чи воно нам справді зручно.
+          </p>
+        </div>
+        <span class="pill pill-neutral">На паузі до нашого рішення</span>
+      </div>
+    </section>
+
+    <!-- Feedback Card -->
+    <section id="feedback" class="section">
+      <div class="feedback-box">
+        <span class="pill pill-amber">💬 2 хвилини — і вирішимо разом</span>
+        <h2 style="margin: 10px 0 6px; font-size: 24px;">Танюша, яка твоя думка?</h2>
+        <p style="margin: 0 0 18px; font-size: 14.5px; color: var(--muted);">
+          Можеш прямо тут відмітити, що тобі відгукується, і надіслати мені в Telegram — або просто обговоримо ввечері ☕
+        </p>
+
+        <div class="q-card">
+          <div class="q-title">1. Які нагороди за монети 🪙 нам найкраще підійдуть?</div>
+          <div class="choices" data-question="rewards" data-multi="true">
+            <button type="button" class="choice-btn" aria-pressed="false">🎬 Привілеї (вибір фільму, гри, страви)</button>
+            <button type="button" class="choice-btn" aria-pressed="false">💵 Кишенькові гроші</button>
+            <button type="button" class="choice-btn" aria-pressed="false">📱 Додатковий екранний час (для Ореста)</button>
+            <button type="button" class="choice-btn" aria-pressed="false">🎁 Сімейні виїзди / сюрпризи</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-title">2. Чи хочеш, щоб і ми (мама й тато) брали участь у спільній дошці та балах?</div>
+          <div class="choices" data-question="parents" data-multi="false">
+            <button type="button" class="choice-btn" aria-pressed="false">Так, це гарний приклад для дітей!</button>
+            <button type="button" class="choice-btn" aria-pressed="false">Спільні справи — так, але XP і монети тільки дітям</button>
+            <button type="button" class="choice-btn" aria-pressed="false">Краще обговоримо особисто</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <div class="q-title">3. Як тобі ідея Спільної цілі місяця замість змагання між дітьми?</div>
+          <div class="choices" data-question="teamGoal" data-multi="false">
+            <button type="button" class="choice-btn" aria-pressed="false">Супер, це обʼєднує!</button>
+            <button type="button" class="choice-btn" aria-pressed="false">Добре, але нехай будуть і особисті призи</button>
+            <button type="button" class="choice-btn" aria-pressed="false">Є інша ідея</button>
+          </div>
+        </div>
+
+        <div class="q-card">
+          <label for="freeNotes" class="q-title" style="display: block;">4. Що додати, прибрати або змінити? (за бажанням)</label>
+          <textarea id="freeNotes" class="notes-input" rows="3" placeholder="Наприклад: які домашні справи найважливіші, чи що думаєш про шкільний кабінет..."></textarea>
+        </div>
+
+        <div class="feedback-actions">
+          <button id="telegramShareBtn" type="button" class="btn-primary">✈️ Надіслати відповіді в Telegram</button>
+          <button id="copyFeedbackBtn" type="button" class="btn-secondary">📋 Скопіювати текст</button>
+          <span id="copyConfirm" class="copy-msg">✅ Скопійовано!</span>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Зроблено з любовʼю для нашої сімʼї 🏡 · Микола, Танюша, Ясенʼяр і Орест
+    </footer>
+  </div>
+
+  <script>
+    const BOUNTIES = [
+      { id: 'dishes', icon: '🍽️', title: 'Помити посуд / посудомийка', tier: 'Середня', xp: 30, coins: 4, repeatable: true, badge: '🧹 Порядок' },
+      { id: 'tidy', icon: '🧹', title: 'Прибирання / підмести або помити підлогу', tier: 'Середня', xp: 30, coins: 4, repeatable: true, badge: '🧹 Порядок' },
+      { id: 'trash', icon: '🗑️', title: 'Винести сміття', tier: 'Легка', xp: 15, coins: 2, repeatable: true, badge: '♻️ Еко-герой' },
+      { id: 'recycle', icon: '♻️', title: 'Сортування: пластик, папір, скло', tier: 'Легка', xp: 15, coins: 2, repeatable: true, badge: '♻️ Еко-герой' },
+      { id: 'cook', icon: '🍳', title: 'Приготувати їжу або допомогти з вечерею', tier: 'Складна', xp: 60, coins: 8, repeatable: true, badge: '🍳 Шеф-кухар' },
+      { id: 'laundry', icon: '🧺', title: 'Прання / розвісити й висушити одяг', tier: 'Середня', xp: 25, coins: 3, repeatable: true, badge: '🤝 Команда' },
+      { id: 'groceries', icon: '🛒', title: 'Купити продукти за списком', tier: 'Середня', xp: 35, coins: 5, repeatable: true, badge: '🤝 Команда' },
+      { id: 'furniture', icon: '✨', title: 'Протерти меблі й полиці', tier: 'Легка', xp: 15, coins: 2, repeatable: false, badge: '🧹 Порядок' },
+      { id: 'plants', icon: '🪴', title: 'Полити квіти', tier: 'Легка', xp: 15, coins: 2, repeatable: false, badge: '🌿 Турбота' },
+    ];
+
+    const counts = {};
+    const BASE_GOAL_XP = 720;
+    const TARGET_GOAL_XP = 1000;
+
+    function renderBounties() {
+      const grid = document.getElementById('bountyGrid');
+      grid.innerHTML = '';
+
+      let totalXp = 0;
+      let totalCoins = 0;
+      let totalActions = 0;
+
+      BOUNTIES.forEach((b) => {
+        const count = counts[b.id] || 0;
+        totalXp += count * b.xp;
+        totalCoins += count * b.coins;
+        totalActions += count;
+
+        const card = document.createElement('div');
+        card.className = 'bounty-card' + (count > 0 ? ' has-count' : '');
+
+        const statusBadge = count > 0
+          ? `<span class="pill pill-green">${b.repeatable ? '✅ ×' + count : '✅ Взято'}</span>`
+          : (b.repeatable
+              ? `<span class="pill pill-amber">🔁 кілька разів/день</span>`
+              : `<span class="pill pill-neutral">${b.tier}</span>`);
+
+        const takeLabel = b.repeatable
+          ? (count > 0 ? '+1 ще раз' : '+ Взяти')
+          : (count > 0 ? 'Зняти' : '+ Взяти');
+
+        card.innerHTML = `
+          <div>
+            <div class="bounty-top">
+              <span style="font-size: 20px; line-height: 1;">${b.icon}</span>
+              ${statusBadge}
+            </div>
+            <div class="bounty-title">${b.title}</div>
+            <div class="bounty-meta">${b.badge} · ${b.tier}</div>
+          </div>
+          <div class="bounty-actions">
+            <span class="bounty-reward">+${b.xp} XP · +${b.coins} 🪙</span>
+            <div class="counter-controls">
+              ${b.repeatable && count > 0 ? `<button type="button" class="btn-minus" data-action="dec" aria-label="Прибрати один">−</button>` : ''}
+              <button type="button" class="btn-take ${count > 0 ? 'active' : ''}" data-action="inc">${takeLabel}</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector('[data-action="inc"]').addEventListener('click', () => {
+          if (b.repeatable) {
+            counts[b.id] = (counts[b.id] || 0) + 1;
+          } else {
+            counts[b.id] = count > 0 ? 0 : 1;
+          }
+          renderBounties();
+        });
+
+        const decBtn = card.querySelector('[data-action="dec"]');
+        if (decBtn) {
+          decBtn.addEventListener('click', () => {
+            counts[b.id] = Math.max(0, (counts[b.id] || 0) - 1);
+            renderBounties();
+          });
+        }
+
+        grid.appendChild(card);
+      });
+
+      const pct = Math.min(100, Math.round(((BASE_GOAL_XP + totalXp) / TARGET_GOAL_XP) * 100));
+      document.getElementById('demoXp').textContent = `⭐ +${totalXp} XP`;
+      document.getElementById('demoCoins').textContent = `🪙 +${totalCoins} монет`;
+      document.getElementById('demoGoalPct').textContent = `${pct}%`;
+      document.getElementById('demoBar').style.width = `${pct}%`;
+
+      const status = document.getElementById('demoStatus');
+      if (totalActions === 0) {
+        status.textContent = 'Натисни «+ Взяти» на будь-якій справі нижче (а на повторюваних — спробуй натиснути кілька разів!).';
+      } else if (pct >= 100) {
+        status.textContent = '🎉 Ура! Сімейна ціль місяця досягнута — час планувати вечір піци та настільної гри!';
+      } else {
+        status.textContent = `Виконано дій: ${totalActions}. Кожна взята справа додає бонуси власнику і наближає спільну ціль сімʼї!`;
+      }
+    }
+
+    document.getElementById('resetDemoBtn').addEventListener('click', () => {
+      Object.keys(counts).forEach((k) => delete counts[k]);
+      renderBounties();
+    });
+
+    // Interactive feedback choices
+    document.querySelectorAll('[data-question]').forEach((group) => {
+      const isMulti = group.dataset.multi === 'true';
+      group.querySelectorAll('.choice-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const pressed = btn.getAttribute('aria-pressed') === 'true';
+          if (!isMulti) {
+            group.querySelectorAll('.choice-btn').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+          }
+          btn.setAttribute('aria-pressed', String(!pressed));
+        });
+      });
+    });
+
+    function buildFeedbackText() {
+      const collect = (name) => {
+        const group = document.querySelector(`[data-question="${name}"]`);
+        const selected = Array.from(group.querySelectorAll('.choice-btn[aria-pressed="true"]')).map((b) => b.textContent.trim());
+        return selected.length ? selected.join(', ') : 'обговоримо особисто';
+      };
+      const notes = document.getElementById('freeNotes').value.trim();
+
+      return [
+        '💛 Відгук про «Сімейний штаб»:',
+        `1. Нагороди за монети: ${collect('rewards')}`,
+        `2. Участь батьків: ${collect('parents')}`,
+        `3. Спільна ціль місяця: ${collect('teamGoal')}`,
+        notes ? `4. Коментар: ${notes}` : '',
+      ].filter(Boolean).join('\n');
+    }
+
+    document.getElementById('copyFeedbackBtn').addEventListener('click', async () => {
+      const summary = buildFeedbackText();
+      try {
+        await navigator.clipboard.writeText(summary);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = summary;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const confirm = document.getElementById('copyConfirm');
+      confirm.classList.add('show');
+      setTimeout(() => confirm.classList.remove('show'), 3500);
+    });
+
+    document.getElementById('telegramShareBtn').addEventListener('click', () => {
+      const text = encodeURIComponent(buildFeedbackText());
+      window.open(`https://t.me/share/url?url=%20&text=${text}`, '_blank', 'noopener');
+    });
+
+    renderBounties();
+  </script>
+</body>
+</html>
