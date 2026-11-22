@@ -42,6 +42,7 @@ taskRoutes.post('/', requireParent, async (c) => {
     description: string;
     category: TaskCategory;
     isMandatory: boolean;
+    isCritical: boolean;
     xpValue: number;
     externalSource: string | null;
   }>(c);
@@ -69,6 +70,7 @@ taskRoutes.post('/', requireParent, async (c) => {
     body.category && VALID_CATEGORIES.has(body.category) ? body.category : 'general';
   const isMandatory =
     assignee.role === 'child' ? (body.isMandatory === false ? 0 : 1) : body.isMandatory ? 1 : 0;
+  const isCritical = body.isCritical ? 1 : 0;
   const xpValue =
     typeof body.xpValue === 'number' && Number.isFinite(body.xpValue)
       ? Math.max(0, Math.min(500, Math.round(body.xpValue)))
@@ -82,8 +84,8 @@ taskRoutes.post('/', requireParent, async (c) => {
   const id = crypto.randomUUID();
   await c.env.DB.prepare(
     `INSERT INTO tasks
-     (id, template_id, assignee_id, task_date, title, description, category, is_mandatory, xp_value, status, completion_pct, external_source, created_by)
-     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 'todo', 0, ?, ?)`,
+     (id, template_id, assignee_id, task_date, title, description, category, is_mandatory, is_critical, xp_value, status, completion_pct, external_source, created_by)
+     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'todo', 0, ?, ?)`,
   )
     .bind(
       id,
@@ -93,11 +95,21 @@ taskRoutes.post('/', requireParent, async (c) => {
       description,
       category,
       isMandatory,
+      isCritical,
       xpValue,
       externalSource,
       actor.id,
     )
     .run();
+
+  if (isCritical === 1) {
+    await recordNotificationEvent(c.env, {
+      eventType: 'task_created_critical',
+      actorId: actor.id,
+      targetMemberId: assignee.id,
+      data: { taskId: id, title, description, taskDate },
+    });
+  }
 
   const created = await c.env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).first<TaskRow>();
   return c.json({ task: mapTask(created!) }, 201);
@@ -118,6 +130,7 @@ taskRoutes.patch('/:id', requireParent, async (c) => {
     assigneeId: string;
     category: TaskCategory;
     isMandatory: boolean;
+    isCritical: boolean;
     xpValue: number;
     externalSource: string | null;
   }>(c);
@@ -152,6 +165,8 @@ taskRoutes.patch('/:id', requireParent, async (c) => {
     body.category && VALID_CATEGORIES.has(body.category) ? body.category : existing.category;
   const isMandatory =
     body.isMandatory !== undefined ? (body.isMandatory ? 1 : 0) : existing.is_mandatory;
+  const isCritical =
+    body.isCritical !== undefined ? (body.isCritical ? 1 : 0) : (existing.is_critical ?? 0);
   const xpValue =
     typeof body.xpValue === 'number' && Number.isFinite(body.xpValue)
       ? Math.max(0, Math.min(500, Math.round(body.xpValue)))
@@ -165,10 +180,21 @@ taskRoutes.patch('/:id', requireParent, async (c) => {
 
   await c.env.DB.prepare(
     `UPDATE tasks
-     SET title = ?, description = ?, task_date = ?, assignee_id = ?, category = ?, is_mandatory = ?, xp_value = ?, external_source = ?, updated_at = datetime('now')
+     SET title = ?, description = ?, task_date = ?, assignee_id = ?, category = ?, is_mandatory = ?, is_critical = ?, xp_value = ?, external_source = ?, updated_at = datetime('now')
      WHERE id = ?`,
   )
-    .bind(title, description, taskDate, assigneeId, category, isMandatory, xpValue, externalSource, id)
+    .bind(
+      title,
+      description,
+      taskDate,
+      assigneeId,
+      category,
+      isMandatory,
+      isCritical,
+      xpValue,
+      externalSource,
+      id,
+    )
     .run();
 
   const updated = await c.env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).first<TaskRow>();
@@ -249,6 +275,7 @@ taskRoutes.post('/:id/report', async (c) => {
         status: nextStatus,
         completionPct,
         note,
+        isCritical: existing.is_critical === 1,
       },
     });
   }
@@ -310,6 +337,7 @@ taskRoutes.post('/:id/review', requireParent, async (c) => {
       title: existing.title,
       decision: body.decision,
       note,
+      isCritical: existing.is_critical === 1,
     },
   });
 
@@ -365,6 +393,17 @@ taskRoutes.post('/:id/toggle', requireParent, async (c) => {
     )
       .bind(parent.id, nowIso, id)
       .run();
+
+    await recordNotificationEvent(c.env, {
+      eventType: 'task_completed',
+      actorId: parent.id,
+      targetMemberId: existing.assignee_id,
+      data: {
+        taskId: existing.id,
+        title: existing.title,
+        isCritical: existing.is_critical === 1,
+      },
+    });
   }
 
   const updated = await c.env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).first<TaskRow>();

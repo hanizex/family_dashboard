@@ -118,6 +118,7 @@ export function TaskRow({
       </div>
 
       <div className="task-tags">
+        {task.isCritical && <span className="tag tag-status-rejected">{t.criticalBadge}</span>}
         {statusTag()}
         <span className="tag">{t.categories[task.category] ?? task.category}</span>
         {task.externalSource === 'chess_com' && (

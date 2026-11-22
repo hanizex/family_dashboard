@@ -186,6 +186,13 @@ async function autoVerifyLinkedTasks(
         .run();
       updatedCount += 1;
 
+      await recordNotificationEvent(env, {
+        eventType: 'task_completed',
+        actorId: memberId,
+        targetMemberId: memberId,
+        data: { taskId: task.id, title: task.title, via: provider },
+      });
+
       if (task.is_mandatory === 1) {
         const remaining = await env.DB.prepare(
           `SELECT COUNT(*) as count FROM tasks

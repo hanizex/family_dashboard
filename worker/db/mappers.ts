@@ -40,6 +40,7 @@ export interface TaskRow {
   description: string | null;
   category: string;
   is_mandatory: number;
+  is_critical?: number;
   xp_value: number;
   status: string;
   completion_pct: number;
@@ -119,6 +120,7 @@ export function mapTask(row: TaskRow): TaskItem {
     description: row.description,
     category: row.category as TaskCategory,
     isMandatory: row.is_mandatory === 1,
+    isCritical: row.is_critical === 1,
     xpValue: row.xp_value,
     status: row.status as TaskStatus,
     completionPct: row.completion_pct,

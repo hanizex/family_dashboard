@@ -59,6 +59,7 @@ export interface TaskItem {
   description: string | null;
   category: TaskCategory;
   isMandatory: boolean;
+  isCritical: boolean;
   xpValue: number;
   status: TaskStatus;
   completionPct: number;
@@ -210,4 +211,46 @@ export interface DevicePairCodeResponse {
   code: string;
   memberId: string;
   expiresAt: string;
+}
+
+export type TelegramRuleType =
+  | 'reminder'
+  | 'if_not_done'
+  | 'on_task_done'
+  | 'on_task_reported';
+
+export interface TelegramPreferences {
+  memberId: string;
+  notifyTaskReported: boolean;
+  notifyTaskReviewed: boolean;
+  notifyChangeRequests: boolean;
+  notifyScreenTime: boolean;
+  notifyCritical: boolean;
+  quietStartHour: number | null;
+  quietEndHour: number | null;
+}
+
+export interface TelegramRule {
+  id: string;
+  ownerId: string;
+  ruleType: TelegramRuleType;
+  title: string;
+  targetMemberId: string | null;
+  taskKeyword: string | null;
+  onlyMandatory: boolean;
+  scheduleDays: number[] | null;
+  triggerTime: string | null; // HH:MM in Europe/Kyiv
+  isCritical: boolean;
+  enabled: boolean;
+  lastFiredDate: string | null;
+  createdAt: string;
+}
+
+export interface TelegramStatusResponse {
+  botConfigured: boolean;
+  botUsername: string | null;
+  linked: boolean;
+  chatIdMasked: string | null;
+  preferences: TelegramPreferences;
+  rules: TelegramRule[];
 }

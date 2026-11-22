@@ -77,8 +77,9 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           INITIAL_ADMIN_EMAIL: ${{ secrets.INITIAL_ADMIN_EMAIL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
-          for key in SESSION_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET INITIAL_ADMIN_EMAIL; do
+          for key in SESSION_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET INITIAL_ADMIN_EMAIL TELEGRAM_BOT_TOKEN; do
             val="${!key}"
             if [ -n "$val" ]; then
               printf '%s' "$val" | npx wrangler secret put "$key" --env staging
@@ -134,8 +135,9 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           INITIAL_ADMIN_EMAIL: ${{ secrets.INITIAL_ADMIN_EMAIL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
-          for key in SESSION_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET INITIAL_ADMIN_EMAIL; do
+          for key in SESSION_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET INITIAL_ADMIN_EMAIL TELEGRAM_BOT_TOKEN; do
             val="${!key}"
             if [ -n "$val" ]; then
               printf '%s' "$val" | npx wrangler secret put "$key" --env=""

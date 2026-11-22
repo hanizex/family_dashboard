@@ -227,6 +227,7 @@ export function TaskEditorModal({
     description?: string;
     category: TaskCategory;
     isMandatory: boolean;
+    isCritical: boolean;
     xpValue: number;
     externalSource?: string | null;
   }) => Promise<void>;
@@ -243,6 +244,7 @@ export function TaskEditorModal({
   const [isMandatory, setIsMandatory] = useState<boolean>(
     editingTask ? editingTask.isMandatory : members.find((m) => m.id === initialAssignee)?.role === 'child',
   );
+  const [isCritical, setIsCritical] = useState<boolean>(editingTask?.isCritical ?? false);
   const [xpValue, setXpValue] = useState<number>(editingTask?.xpValue ?? 15);
   const [externalSource, setExternalSource] = useState<string>(editingTask?.externalSource ?? '');
   const [saving, setSaving] = useState(false);
@@ -269,6 +271,7 @@ export function TaskEditorModal({
         description: description.trim() || undefined,
         category,
         isMandatory: selectedMember?.role === 'child' ? isMandatory : false,
+        isCritical,
         xpValue,
         externalSource: externalSource || null,
       });
@@ -400,6 +403,15 @@ export function TaskEditorModal({
             <span>{t.mandatoryToggle}</span>
           </label>
         )}
+
+        <label className="toggle-row">
+          <input
+            type="checkbox"
+            checked={isCritical}
+            onChange={(e) => setIsCritical(e.target.checked)}
+          />
+          <span>{t.criticalToggle}</span>
+        </label>
 
         <div className="field">
           <label htmlFor="task-desc" className="field-label">

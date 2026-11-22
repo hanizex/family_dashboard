@@ -1,34 +1,28 @@
 import type { Env } from '../env';
+import {
+  dispatchTelegramForEvent,
+  type DomainNotificationEvent,
+} from '../telegram/dispatcher';
 
-export type NotificationEventType =
-  | 'task_reported'
-  | 'task_reviewed'
-  | 'change_request_created'
-  | 'change_request_reviewed'
-  | 'screen_time_unlocked';
-
-export interface NotificationPayload {
-  eventType: NotificationEventType;
-  actorId: string;
-  targetMemberId?: string | null;
-  data: Record<string, unknown>;
-}
+export type NotificationEventType = DomainNotificationEvent['eventType'];
+export type NotificationPayload = DomainNotificationEvent;
 
 /**
- * Records domain events to `notification_events` so Phase 3 can dispatch
- * real-time Telegram Bot messages without changing any Phase 1 routes.
+ * Records domain events to `notification_events` and immediately dispatches
+ * Telegram notifications according to each family member's preferences and custom rules.
  */
 export async function recordNotificationEvent(
   env: Env,
   payload: NotificationPayload,
 ): Promise<void> {
+  const id = crypto.randomUUID();
   try {
     await env.DB.prepare(
       `INSERT INTO notification_events (id, event_type, actor_id, target_member_id, payload_json, telegram_sent)
        VALUES (?, ?, ?, ?, ?, 0)`,
     )
       .bind(
-        crypto.randomUUID(),
+        id,
         payload.eventType,
         payload.actorId,
         payload.targetMemberId ?? null,
@@ -36,10 +30,14 @@ export async function recordNotificationEvent(
       )
       .run();
 
-    // Phase 3 hook: when TELEGRAM_BOT_TOKEN and member.telegram_chat_id are configured,
-    // dispatch formatted Telegram messages directly from here.
+    const sent = await dispatchTelegramForEvent(env, payload);
+    if (sent > 0) {
+      await env.DB.prepare('UPDATE notification_events SET telegram_sent = 1 WHERE id = ?')
+        .bind(id)
+        .run();
+    }
   } catch (err) {
-    // Notification logging must never block core task workflows
-    console.error('[notifications] failed to record event', err);
+    // Notification delivery must never block core task workflows
+    console.error('[notifications] failed to record/dispatch event', err);
   }
 }

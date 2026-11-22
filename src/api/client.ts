@@ -74,6 +74,7 @@ export const api = {
     description?: string;
     category?: TaskCategory;
     isMandatory?: boolean;
+    isCritical?: boolean;
     xpValue?: number;
     externalSource?: string | null;
   }) =>
@@ -91,6 +92,7 @@ export const api = {
       assigneeId?: string;
       category?: TaskCategory;
       isMandatory?: boolean;
+      isCritical?: boolean;
       xpValue?: number;
       externalSource?: string | null;
     },
@@ -265,4 +267,73 @@ export const api = {
       `/api/integrations/${encodeURIComponent(memberId)}/${provider}/create-routine`,
       { method: 'POST' },
     ),
+
+  // Phase 3B: Telegram Notifications & Custom Rules
+  getTelegramStatus: () =>
+    request<import('../../shared/types').TelegramStatusResponse>('/api/telegram/status'),
+
+  setupTelegramWebhook: () =>
+    request<{ ok: boolean; webhookUrl: string; botUsername: string }>(
+      '/api/telegram/setup-webhook',
+      { method: 'POST' },
+    ),
+
+  createTelegramLinkToken: (memberId?: string) =>
+    request<{ token: string; deepLink: string; botUsername: string; expiresAt: string }>(
+      '/api/telegram/link-token',
+      {
+        method: 'POST',
+        body: JSON.stringify(memberId ? { memberId } : {}),
+      },
+    ),
+
+  unlinkTelegram: () => request<{ ok: boolean }>('/api/telegram/unlink', { method: 'POST' }),
+
+  sendTelegramTest: () => request<{ ok: boolean }>('/api/telegram/test', { method: 'POST' }),
+
+  updateTelegramPreferences: (
+    payload: Partial<Omit<import('../../shared/types').TelegramPreferences, 'memberId'>>,
+  ) =>
+    request<{ preferences: import('../../shared/types').TelegramPreferences }>(
+      '/api/telegram/preferences',
+      {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      },
+    ),
+
+  createTelegramRule: (payload: {
+    ruleType: import('../../shared/types').TelegramRuleType;
+    title: string;
+    targetMemberId?: string | null;
+    taskKeyword?: string | null;
+    onlyMandatory?: boolean;
+    scheduleDays?: number[] | null;
+    triggerTime?: string | null;
+    isCritical?: boolean;
+  }) =>
+    request<{ rule: import('../../shared/types').TelegramRule }>('/api/telegram/rules', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  updateTelegramRule: (id: string, payload: { enabled?: boolean; isCritical?: boolean }) =>
+    request<{ rule: import('../../shared/types').TelegramRule }>(
+      `/api/telegram/rules/${encodeURIComponent(id)}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      },
+    ),
+
+  deleteTelegramRule: (id: string) =>
+    request<{ ok: boolean }>(`/api/telegram/rules/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+
+  sendCriticalAlert: (payload: { targetMemberId?: string | null; message: string }) =>
+    request<{ ok: boolean }>('/api/telegram/critical-alert', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 };

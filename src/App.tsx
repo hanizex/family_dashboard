@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Bell,
   Calendar,
   CalendarClock,
   CheckSquare,
@@ -38,9 +39,10 @@ import {
 } from './components/Modals';
 import { RoutinesView } from './components/RoutinesView';
 import { ScreenTimeStrip } from './components/ScreenTimeStrip';
+import { TelegramView } from './components/TelegramView';
 import { useI18n } from './i18n';
 
-type ActiveTab = 'board' | 'approvals' | 'routines' | 'requests' | 'family';
+type ActiveTab = 'board' | 'approvals' | 'routines' | 'requests' | 'telegram' | 'family';
 
 function shiftDate(dateStr: string, deltaDays: number): string {
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -245,6 +247,7 @@ export function App() {
     description?: string;
     category: TaskCategory;
     isMandatory: boolean;
+    isCritical: boolean;
     xpValue: number;
     externalSource?: string | null;
   }) => {
@@ -448,6 +451,14 @@ export function App() {
                 </button>
                 <button
                   type="button"
+                  className={`nav-tab ${activeTab === 'telegram' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('telegram')}
+                >
+                  <Bell size={15} />
+                  {t.navTelegram}
+                </button>
+                <button
+                  type="button"
                   className={`nav-tab ${activeTab === 'family' ? 'active' : ''}`}
                   onClick={() => setActiveTab('family')}
                 >
@@ -456,14 +467,24 @@ export function App() {
                 </button>
               </>
             ) : (
-              <button
-                type="button"
-                className={`nav-tab ${activeTab === 'requests' ? 'active' : ''}`}
-                onClick={() => setActiveTab('requests')}
-              >
-                <MessageSquarePlus size={15} />
-                {t.navRequests}
-              </button>
+              <>
+                <button
+                  type="button"
+                  className={`nav-tab ${activeTab === 'requests' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('requests')}
+                >
+                  <MessageSquarePlus size={15} />
+                  {t.navRequests}
+                </button>
+                <button
+                  type="button"
+                  className={`nav-tab ${activeTab === 'telegram' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('telegram')}
+                >
+                  <Bell size={15} />
+                  {t.navTelegram}
+                </button>
+              </>
             )}
           </nav>
 
@@ -685,6 +706,10 @@ export function App() {
           />
         )}
 
+        {activeTab === 'telegram' && dashboard && (
+          <TelegramView currentUser={currentUser} members={members} onToast={showToast} />
+        )}
+
         {activeTab === 'family' && isParent && dashboard && (
           <FamilySettingsView
             members={members}
@@ -732,6 +757,14 @@ export function App() {
             </button>
             <button
               type="button"
+              className={`mobile-nav-btn ${activeTab === 'telegram' ? 'active' : ''}`}
+              onClick={() => setActiveTab('telegram')}
+            >
+              <Bell size={20} />
+              <span>{t.navTelegram}</span>
+            </button>
+            <button
+              type="button"
               className={`mobile-nav-btn ${activeTab === 'family' ? 'active' : ''}`}
               onClick={() => setActiveTab('family')}
             >
@@ -740,14 +773,24 @@ export function App() {
             </button>
           </>
         ) : (
-          <button
-            type="button"
-            className={`mobile-nav-btn ${activeTab === 'requests' ? 'active' : ''}`}
-            onClick={() => setActiveTab('requests')}
-          >
-            <MessageSquarePlus size={20} />
-            <span>{t.navRequests}</span>
-          </button>
+          <>
+            <button
+              type="button"
+              className={`mobile-nav-btn ${activeTab === 'requests' ? 'active' : ''}`}
+              onClick={() => setActiveTab('requests')}
+            >
+              <MessageSquarePlus size={20} />
+              <span>{t.navRequests}</span>
+            </button>
+            <button
+              type="button"
+              className={`mobile-nav-btn ${activeTab === 'telegram' ? 'active' : ''}`}
+              onClick={() => setActiveTab('telegram')}
+            >
+              <Bell size={20} />
+              <span>{t.navTelegram}</span>
+            </button>
+          </>
         )}
       </nav>
 

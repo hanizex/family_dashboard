@@ -18,8 +18,8 @@
     }
   ],
   "triggers": {
-    // Runs every 2 hours: materializes daily tasks + syncs Chess.com & Duolingo progress
-    "crons": ["0 */2 * * *"]
+    // Runs every 15 min: materializes daily tasks, fires custom Telegram reminders/watchdogs, and syncs Chess.com/Duolingo every 2h
+    "crons": ["*/15 * * * *"]
   },
   "vars": {
     "APP_ENV": "production",
@@ -38,7 +38,7 @@
         }
       ],
       "triggers": {
-        "crons": ["0 */2 * * *"]
+        "crons": ["*/15 * * * *"]
       },
       "vars": {
         "APP_ENV": "staging",

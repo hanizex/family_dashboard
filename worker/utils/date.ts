@@ -53,3 +53,38 @@ export function addDays(dateStr: string, offset: number): string {
   const dt = new Date(Date.UTC(y, m - 1, d + offset));
   return dt.toISOString().slice(0, 10);
 }
+
+export function isValidTimeHHMM(value: string): boolean {
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
+}
+
+export function getLocalClockInTimezone(
+  timezone = 'Europe/Kyiv',
+  now = new Date(),
+): { date: string; hour: number; minute: number; hhmm: string; minutesOfDay: number } {
+  const date = getTodayInTimezone(timezone, now);
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(now);
+    const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+    const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
+    const hh = String(hour).padStart(2, '0');
+    const mm = String(minute).padStart(2, '0');
+    return { date, hour, minute, hhmm: `${hh}:${mm}`, minutesOfDay: hour * 60 + minute };
+  } catch {
+    const hour = now.getUTCHours();
+    const minute = now.getUTCMinutes();
+    const hh = String(hour).padStart(2, '0');
+    const mm = String(minute).padStart(2, '0');
+    return { date, hour, minute, hhmm: `${hh}:${mm}`, minutesOfDay: hour * 60 + minute };
+  }
+}
+
+export function timeToMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}

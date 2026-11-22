@@ -10,8 +10,10 @@ import { familyRoutes } from './routes/family';
 import { integrationRoutes } from './routes/integrations';
 import { requestRoutes } from './routes/requests';
 import { taskRoutes } from './routes/tasks';
+import { telegramRoutes } from './routes/telegram';
 import { templateRoutes } from './routes/templates';
-import { getTodayInTimezone } from './utils/date';
+import { runScheduledTelegramRules } from './telegram/dispatcher';
+import { getLocalClockInTimezone, getTodayInTimezone } from './utils/date';
 
 export function createApp(): Hono<AppContextEnv> {
   const app = new Hono<AppContextEnv>();
@@ -33,6 +35,7 @@ export function createApp(): Hono<AppContextEnv> {
   app.route('/api/requests', requestRoutes);
   app.route('/api/family', familyRoutes);
   app.route('/api/integrations', integrationRoutes);
+  app.route('/api/telegram', telegramRoutes);
 
   app.notFound(async (c) => {
     if (c.req.path.startsWith('/api/')) {
@@ -67,11 +70,19 @@ export default {
 
   async scheduled(_controller: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
     await ensureSeeded(env.DB, env.FAMILY_TIMEZONE, env.INITIAL_ADMIN_EMAIL);
-    const today = getTodayInTimezone(env.FAMILY_TIMEZONE);
-    const count = await ensureTasksForDate(env.DB, today);
-    const syncRes = await syncAllExternalAccounts(env, { force: true });
+    const clock = getLocalClockInTimezone(env.FAMILY_TIMEZONE);
+    const count = await ensureTasksForDate(env.DB, clock.date);
+    const tgRes = await runScheduledTelegramRules(env);
+
+    // Keep Chess.com & Duolingo syncing politely every 2 hours (top of even hours)
+    let extSummary = 'skipped';
+    if (clock.minute < 15 && clock.hour % 2 === 0) {
+      const syncRes = await syncAllExternalAccounts(env, { force: true });
+      extSummary = `${syncRes.accounts.length} synced (${syncRes.tasksVerified} verified)`;
+    }
+
     console.log(
-      `[cron] materialized ${count} templates for ${today}; synced ${syncRes.accounts.length} external accounts (${syncRes.tasksVerified} tasks auto-verified)`,
+      `[cron ${clock.date} ${clock.hhmm}] templates=${count}; tgRules=${tgRes.fired}/${tgRes.evaluated}; external=${extSummary}`,
     );
   },
 };
