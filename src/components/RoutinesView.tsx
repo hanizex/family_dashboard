@@ -26,6 +26,7 @@ interface RoutinesViewProps {
     scheduleDays?: number[];
     intervalDays?: number;
     xpValue: number;
+    externalSource?: string | null;
   }) => Promise<void>;
   onToggleTemplate: (tpl: TaskTemplate) => Promise<void>;
   onDeleteTemplate: (tpl: TaskTemplate) => Promise<void>;
@@ -52,6 +53,7 @@ export function RoutinesView({
   const [intervalDays, setIntervalDays] = useState(3);
   const [isMandatory, setIsMandatory] = useState(true);
   const [xpValue, setXpValue] = useState(15);
+  const [externalSource, setExternalSource] = useState<string>('');
   const [saving, setSaving] = useState(false);
 
   const memberById = new Map(members.map((m) => [m.id, m]));
@@ -87,9 +89,11 @@ export function RoutinesView({
         scheduleDays: scheduleType === 'custom_days' ? customDays : undefined,
         intervalDays: scheduleType === 'every_n_days' ? intervalDays : undefined,
         xpValue,
+        externalSource: externalSource || null,
       });
       setTitle('');
       setDescription('');
+      setExternalSource('');
       setShowAdd(false);
     } finally {
       setSaving(false);
@@ -175,6 +179,12 @@ export function RoutinesView({
                     <span className="tag">
                       {tpl.isMandatory ? t.mandatoryBadge : t.extraBadge}
                     </span>
+                    {tpl.externalSource === 'chess_com' && (
+                      <span className="tag tag-source-chess">♟️ Chess.com</span>
+                    )}
+                    {tpl.externalSource === 'duolingo' && (
+                      <span className="tag tag-source-duo">🦉 Duolingo</span>
+                    )}
                     <span className="tag tag-xp">{format(t.xpHint, { xp: tpl.xpValue })}</span>
                   </div>
                 </article>
@@ -317,6 +327,22 @@ export function RoutinesView({
                   onChange={(e) => setXpValue(Number(e.target.value))}
                 />
               </div>
+            </div>
+
+            <div className="field">
+              <label htmlFor="tpl-ext-source" className="field-label">
+                {t.externalSourceLabel}
+              </label>
+              <select
+                id="tpl-ext-source"
+                className="select"
+                value={externalSource}
+                onChange={(e) => setExternalSource(e.target.value)}
+              >
+                <option value="">{t.externalSourceNone}</option>
+                <option value="chess_com">{t.externalSourceChess}</option>
+                <option value="duolingo">{t.externalSourceDuolingo}</option>
+              </select>
             </div>
 
             <label className="toggle-row">

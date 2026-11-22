@@ -50,6 +50,7 @@ templateRoutes.post('/', requireParent, async (c) => {
     intervalDays: number;
     anchorDate: string;
     xpValue: number;
+    externalSource: string | null;
   }>(c);
 
   const title = (body.title ?? '').trim();
@@ -91,12 +92,16 @@ templateRoutes.post('/', requireParent, async (c) => {
     typeof body.xpValue === 'number' && Number.isFinite(body.xpValue)
       ? Math.max(0, Math.min(500, Math.round(body.xpValue)))
       : 15;
+  const externalSource =
+    body.externalSource === 'chess_com' || body.externalSource === 'duolingo'
+      ? body.externalSource
+      : null;
 
   const id = crypto.randomUUID();
   await c.env.DB.prepare(
     `INSERT INTO task_templates
-     (id, assignee_id, title, description, category, is_mandatory, schedule_type, schedule_days, interval_days, anchor_date, xp_value, active, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+     (id, assignee_id, title, description, category, is_mandatory, schedule_type, schedule_days, interval_days, anchor_date, xp_value, external_source, active, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
   )
     .bind(
       id,
@@ -110,6 +115,7 @@ templateRoutes.post('/', requireParent, async (c) => {
       intervalDays,
       anchorDate,
       xpValue,
+      externalSource,
       parent.id,
     )
     .run();

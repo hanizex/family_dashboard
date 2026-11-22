@@ -3,9 +3,11 @@ import type { AppContextEnv, Env } from './env';
 import { attachAuthMiddleware } from './auth/middleware';
 import { ensureSeeded } from './db/seed';
 import { ensureTasksForDate } from './db/tasks';
+import { syncAllExternalAccounts } from './integrations/sync';
 import { authRoutes } from './routes/auth';
 import { dashboardRoutes } from './routes/dashboard';
 import { familyRoutes } from './routes/family';
+import { integrationRoutes } from './routes/integrations';
 import { requestRoutes } from './routes/requests';
 import { taskRoutes } from './routes/tasks';
 import { templateRoutes } from './routes/templates';
@@ -30,6 +32,7 @@ export function createApp(): Hono<AppContextEnv> {
   app.route('/api/templates', templateRoutes);
   app.route('/api/requests', requestRoutes);
   app.route('/api/family', familyRoutes);
+  app.route('/api/integrations', integrationRoutes);
 
   app.notFound(async (c) => {
     if (c.req.path.startsWith('/api/')) {
@@ -66,6 +69,9 @@ export default {
     await ensureSeeded(env.DB, env.FAMILY_TIMEZONE, env.INITIAL_ADMIN_EMAIL);
     const today = getTodayInTimezone(env.FAMILY_TIMEZONE);
     const count = await ensureTasksForDate(env.DB, today);
-    console.log(`[cron] materialized ${count} recurring templates for ${today}`);
+    const syncRes = await syncAllExternalAccounts(env, { force: true });
+    console.log(
+      `[cron] materialized ${count} templates for ${today}; synced ${syncRes.accounts.length} external accounts (${syncRes.tasksVerified} tasks auto-verified)`,
+    );
   },
 };

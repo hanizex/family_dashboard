@@ -228,6 +228,7 @@ export function TaskEditorModal({
     category: TaskCategory;
     isMandatory: boolean;
     xpValue: number;
+    externalSource?: string | null;
   }) => Promise<void>;
 }) {
   const { t } = useI18n();
@@ -243,6 +244,7 @@ export function TaskEditorModal({
     editingTask ? editingTask.isMandatory : members.find((m) => m.id === initialAssignee)?.role === 'child',
   );
   const [xpValue, setXpValue] = useState<number>(editingTask?.xpValue ?? 15);
+  const [externalSource, setExternalSource] = useState<string>(editingTask?.externalSource ?? '');
   const [saving, setSaving] = useState(false);
 
   const selectedMember = members.find((m) => m.id === assigneeId);
@@ -268,6 +270,7 @@ export function TaskEditorModal({
         category,
         isMandatory: selectedMember?.role === 'child' ? isMandatory : false,
         xpValue,
+        externalSource: externalSource || null,
       });
       onClose();
     } finally {
@@ -369,6 +372,22 @@ export function TaskEditorModal({
               onChange={(e) => setXpValue(Number(e.target.value))}
             />
           </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="task-ext-source" className="field-label">
+            {t.externalSourceLabel}
+          </label>
+          <select
+            id="task-ext-source"
+            className="select"
+            value={externalSource}
+            onChange={(e) => setExternalSource(e.target.value)}
+          >
+            <option value="">{t.externalSourceNone}</option>
+            <option value="chess_com">{t.externalSourceChess}</option>
+            <option value="duolingo">{t.externalSourceDuolingo}</option>
+          </select>
         </div>
 
         {selectedMember?.role === 'child' && (

@@ -1,11 +1,12 @@
-import { Plus } from 'lucide-react';
-import type { Member, TaskItem } from '../../shared/types';
+import { CheckCircle2, Plus } from 'lucide-react';
+import type { ExternalAccountSummary, Member, TaskItem } from '../../shared/types';
 import { useI18n } from '../i18n';
 import { TaskRow } from './TaskRow';
 
 interface MemberColumnProps {
   member: Member;
   tasks: TaskItem[];
+  externalAccounts: ExternalAccountSummary[];
   currentUser: Member;
   busyTaskId: string | null;
   onQuickAddForMember: (memberId: string) => void;
@@ -21,6 +22,7 @@ interface MemberColumnProps {
 export function MemberColumn({
   member,
   tasks,
+  externalAccounts,
   currentUser,
   busyTaskId,
   onQuickAddForMember,
@@ -32,12 +34,13 @@ export function MemberColumn({
   onChildReport,
   onChildRequestChange,
 }: MemberColumnProps) {
-  const { t } = useI18n();
+  const { t, format } = useI18n();
   const isParent = currentUser.role === 'parent';
 
   const doneCount = tasks.filter((item) => item.status === 'approved').length;
   const mandatoryTasks = tasks.filter((item) => item.isMandatory);
   const extraTasks = tasks.filter((item) => !item.isMandatory);
+  const enabledAccounts = externalAccounts.filter((a) => a.enabled);
 
   const renderTask = (task: TaskItem) => (
     <TaskRow
@@ -83,6 +86,74 @@ export function MemberColumn({
           </button>
         )}
       </header>
+
+      {enabledAccounts.length > 0 && (
+        <div className="activity-strip">
+          {enabledAccounts.map((acc) => {
+            if (acc.provider === 'chess_com') {
+              const s = acc.chessStats;
+              const bestRating = s?.rapidRating ?? s?.blitzRating ?? s?.dailyRating ?? null;
+              return (
+                <a
+                  key={acc.id}
+                  href={s?.profileUrl ?? `https://www.chess.com/member/${acc.externalUsername}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`activity-pill ${acc.goalMetToday ? 'goal-met' : ''} ${
+                    acc.lastError && !s ? 'has-error' : ''
+                  }`}
+                >
+                  <span>♟️</span>
+                  {s ? (
+                    <>
+                      <span>
+                        {bestRating ? `${format(t.chessRating, { rating: bestRating })} · ` : ''}
+                        {format(t.chessTodayGames, { n: s.gamesToday })}
+                      </span>
+                      {acc.goalMetToday && <CheckCircle2 size={13} />}
+                    </>
+                  ) : (
+                    <span>Chess: {acc.externalUsername}</span>
+                  )}
+                </a>
+              );
+            }
+
+            if (acc.provider === 'duolingo') {
+              const d = acc.duolingoStats;
+              return (
+                <a
+                  key={acc.id}
+                  href={`https://www.duolingo.com/profile/${encodeURIComponent(acc.externalUsername)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`activity-pill ${acc.goalMetToday ? 'goal-met' : ''} ${
+                    acc.lastError && !d ? 'has-error' : ''
+                  }`}
+                >
+                  <span>🦉</span>
+                  {d ? (
+                    <>
+                      <span>
+                        🔥 {format(t.duoStreak, { n: d.streak })}
+                        {d.xpToday > 0
+                          ? ` · ${format(t.duoXpToday, { xp: d.xpToday })}`
+                          : d.streakExtendedToday
+                            ? ` · ${t.duoDoneToday}`
+                            : ''}
+                      </span>
+                      {acc.goalMetToday && <CheckCircle2 size={13} />}
+                    </>
+                  ) : (
+                    <span>Duolingo: {acc.externalUsername}</span>
+                  )}
+                </a>
+              );
+            }
+            return null;
+          })}
+        </div>
+      )}
 
       <div className="member-column-body">
         {tasks.length === 0 ? (

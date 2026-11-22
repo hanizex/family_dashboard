@@ -118,12 +118,69 @@ export interface ScreenTimeProgress {
   unlocked: boolean;
 }
 
+export type ExternalProvider = 'chess_com' | 'duolingo' | 'school';
+
+export interface ExternalAccountConfig {
+  minGamesPerDay?: number;
+  minXpPerDay?: number;
+  autoApproveTask?: boolean;
+}
+
+export interface ChessStats {
+  username: string;
+  profileUrl: string;
+  avatarUrl: string | null;
+  rapidRating: number | null;
+  blitzRating: number | null;
+  bulletRating: number | null;
+  dailyRating: number | null;
+  tacticsBest: number | null;
+  puzzleRushBest: number | null;
+  gamesToday: number;
+  winsToday: number;
+  gamesLast7d: number;
+  lastGameAt: string | null;
+  ratingDeltaToday: number | null;
+}
+
+export interface DuolingoCourseStat {
+  title: string;
+  learningLanguage: string;
+  xp: number;
+}
+
+export interface DuolingoStats {
+  username: string;
+  displayName: string | null;
+  streak: number;
+  totalXp: number;
+  xpToday: number;
+  streakExtendedToday: boolean;
+  learningLanguage: string | null;
+  courses: DuolingoCourseStat[];
+}
+
+export interface ExternalAccountSummary {
+  id: string;
+  memberId: string;
+  provider: ExternalProvider;
+  externalUsername: string;
+  enabled: boolean;
+  config: ExternalAccountConfig;
+  lastSyncedAt: string | null;
+  lastError: string | null;
+  goalMetToday: boolean;
+  chessStats?: ChessStats | null;
+  duolingoStats?: DuolingoStats | null;
+}
+
 export interface DashboardResponse {
   date: string;
   today: string;
   members: Member[];
   tasks: TaskItem[];
   screenTime: Record<string, ScreenTimeProgress>;
+  externalAccounts: ExternalAccountSummary[];
   pendingReviewCount: number;
   pendingRequestCount: number;
   recentRequests: ChangeRequest[];

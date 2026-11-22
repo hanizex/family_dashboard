@@ -75,6 +75,7 @@ export const api = {
     category?: TaskCategory;
     isMandatory?: boolean;
     xpValue?: number;
+    externalSource?: string | null;
   }) =>
     request<{ task: TaskItem }>('/api/tasks', {
       method: 'POST',
@@ -91,6 +92,7 @@ export const api = {
       category?: TaskCategory;
       isMandatory?: boolean;
       xpValue?: number;
+      externalSource?: string | null;
     },
   ) =>
     request<{ task: TaskItem }>(`/api/tasks/${encodeURIComponent(id)}`, {
@@ -134,6 +136,7 @@ export const api = {
     scheduleDays?: number[];
     intervalDays?: number;
     xpValue?: number;
+    externalSource?: string | null;
   }) =>
     request<{ template: TaskTemplate }>('/api/templates', {
       method: 'POST',
@@ -216,4 +219,48 @@ export const api = {
     request<{ ok: boolean }>(`/api/family/members/${encodeURIComponent(memberId)}/sessions`, {
       method: 'DELETE',
     }),
+
+  // Phase 3A: Chess.com & Duolingo Integrations
+  getIntegrations: () =>
+    request<{ accounts: import('../../shared/types').ExternalAccountSummary[] }>('/api/integrations'),
+
+  saveIntegration: (
+    memberId: string,
+    provider: 'chess_com' | 'duolingo',
+    payload: {
+      username: string;
+      enabled?: boolean;
+      minGamesPerDay?: number;
+      minXpPerDay?: number;
+      autoApproveTask?: boolean;
+    },
+  ) =>
+    request<{
+      account: import('../../shared/types').ExternalAccountSummary;
+      tasksVerified: number;
+    }>(`/api/integrations/${encodeURIComponent(memberId)}/${provider}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  deleteIntegration: (memberId: string, provider: 'chess_com' | 'duolingo') =>
+    request<{ ok: boolean }>(`/api/integrations/${encodeURIComponent(memberId)}/${provider}`, {
+      method: 'DELETE',
+    }),
+
+  syncIntegrations: (payload?: { memberId?: string; force?: boolean }) =>
+    request<{
+      synced: number;
+      tasksVerified: number;
+      accounts: import('../../shared/types').ExternalAccountSummary[];
+    }>('/api/integrations/sync', {
+      method: 'POST',
+      body: JSON.stringify(payload ?? {}),
+    }),
+
+  createIntegrationRoutine: (memberId: string, provider: 'chess_com' | 'duolingo') =>
+    request<{ ok: boolean; alreadyExisted: boolean; tasksVerified: number }>(
+      `/api/integrations/${encodeURIComponent(memberId)}/${provider}/create-routine`,
+      { method: 'POST' },
+    ),
 };

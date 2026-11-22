@@ -49,7 +49,7 @@ function shiftDate(dateStr: string, deltaDays: number): string {
 }
 
 export function App() {
-  const { lang, setLang, t, formatDateLabel } = useI18n();
+  const { lang, setLang, t, format, formatDateLabel } = useI18n();
 
   const [authState, setAuthState] = useState<AuthStateResponse | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
@@ -62,6 +62,7 @@ export function App() {
 
   const [selectedMemberFilter, setSelectedMemberFilter] = useState<string>('all');
   const [syncing, setSyncing] = useState(false);
+  const [syncingApps, setSyncingApps] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -245,6 +246,7 @@ export function App() {
     category: TaskCategory;
     isMandatory: boolean;
     xpValue: number;
+    externalSource?: string | null;
   }) => {
     if (taskEditor.editingTask) {
       await api.updateTask(taskEditor.editingTask.id, payload);
@@ -320,6 +322,7 @@ export function App() {
     scheduleDays?: number[];
     intervalDays?: number;
     xpValue: number;
+    externalSource?: string | null;
   }) => {
     await api.createTemplate(payload);
     await refreshData(undefined, true);
@@ -336,7 +339,26 @@ export function App() {
     await refreshData(undefined, true);
   };
 
+  const handleSyncExternalApps = async () => {
+    setSyncingApps(true);
+    try {
+      const res = await api.syncIntegrations({ force: isParent });
+      await refreshData(undefined, true);
+      showToast(
+        res.tasksVerified > 0
+          ? format(t.syncCompleteToast, { count: res.tasksVerified })
+          : t.syncRefreshedToast,
+      );
+    } catch {
+      showToast(t.genericError);
+    } finally {
+      setSyncingApps(false);
+    }
+  };
+
   const members = dashboard?.members ?? [];
+  const externalAccounts = dashboard?.externalAccounts ?? [];
+  const hasEnabledIntegrations = externalAccounts.some((a) => a.enabled);
   const childrenMembers = useMemo(() => members.filter((m) => m.role === 'child'), [members]);
 
   // Display children first on the board so screen-time tasks are front-and-center, then parents
@@ -532,6 +554,18 @@ export function App() {
               </div>
 
               <div className="toolbar-right">
+                {hasEnabledIntegrations && (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-secondary"
+                    onClick={handleSyncExternalApps}
+                    disabled={syncingApps}
+                  >
+                    <RefreshCw size={14} className={syncingApps ? 'spin' : ''} />
+                    <span>{syncingApps ? t.syncingApps : t.syncAppsBtn}</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   className="btn btn-sm btn-ghost"
@@ -601,6 +635,7 @@ export function App() {
                   key={member.id}
                   member={member}
                   tasks={dashboard.tasks.filter((item) => item.assigneeId === member.id)}
+                  externalAccounts={externalAccounts.filter((a) => a.memberId === member.id)}
                   currentUser={currentUser}
                   busyTaskId={busyId}
                   onQuickAddForMember={(assigneeId) =>
@@ -653,6 +688,7 @@ export function App() {
         {activeTab === 'family' && isParent && dashboard && (
           <FamilySettingsView
             members={members}
+            externalAccounts={externalAccounts}
             onRefresh={async () => {
               await loadAuth();
               await refreshData(undefined, true);

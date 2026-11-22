@@ -43,6 +43,7 @@ taskRoutes.post('/', requireParent, async (c) => {
     category: TaskCategory;
     isMandatory: boolean;
     xpValue: number;
+    externalSource: string | null;
   }>(c);
 
   const title = (body.title ?? '').trim();
@@ -73,14 +74,29 @@ taskRoutes.post('/', requireParent, async (c) => {
       ? Math.max(0, Math.min(500, Math.round(body.xpValue)))
       : 10;
   const description = body.description?.trim() ? body.description.trim().slice(0, 500) : null;
+  const externalSource =
+    body.externalSource === 'chess_com' || body.externalSource === 'duolingo'
+      ? body.externalSource
+      : null;
 
   const id = crypto.randomUUID();
   await c.env.DB.prepare(
     `INSERT INTO tasks
-     (id, template_id, assignee_id, task_date, title, description, category, is_mandatory, xp_value, status, completion_pct, created_by)
-     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 'todo', 0, ?)`,
+     (id, template_id, assignee_id, task_date, title, description, category, is_mandatory, xp_value, status, completion_pct, external_source, created_by)
+     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 'todo', 0, ?, ?)`,
   )
-    .bind(id, assignee.id, taskDate, title, description, category, isMandatory, xpValue, actor.id)
+    .bind(
+      id,
+      assignee.id,
+      taskDate,
+      title,
+      description,
+      category,
+      isMandatory,
+      xpValue,
+      externalSource,
+      actor.id,
+    )
     .run();
 
   const created = await c.env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).first<TaskRow>();
@@ -103,6 +119,7 @@ taskRoutes.patch('/:id', requireParent, async (c) => {
     category: TaskCategory;
     isMandatory: boolean;
     xpValue: number;
+    externalSource: string | null;
   }>(c);
 
   const title = body.title !== undefined ? body.title.trim() : existing.title;
@@ -139,13 +156,19 @@ taskRoutes.patch('/:id', requireParent, async (c) => {
     typeof body.xpValue === 'number' && Number.isFinite(body.xpValue)
       ? Math.max(0, Math.min(500, Math.round(body.xpValue)))
       : existing.xp_value;
+  const externalSource =
+    body.externalSource !== undefined
+      ? body.externalSource === 'chess_com' || body.externalSource === 'duolingo'
+        ? body.externalSource
+        : null
+      : existing.external_source;
 
   await c.env.DB.prepare(
     `UPDATE tasks
-     SET title = ?, description = ?, task_date = ?, assignee_id = ?, category = ?, is_mandatory = ?, xp_value = ?, updated_at = datetime('now')
+     SET title = ?, description = ?, task_date = ?, assignee_id = ?, category = ?, is_mandatory = ?, xp_value = ?, external_source = ?, updated_at = datetime('now')
      WHERE id = ?`,
   )
-    .bind(title, description, taskDate, assigneeId, category, isMandatory, xpValue, id)
+    .bind(title, description, taskDate, assigneeId, category, isMandatory, xpValue, externalSource, id)
     .run();
 
   const updated = await c.env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).first<TaskRow>();

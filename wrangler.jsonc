@@ -18,8 +18,8 @@
     }
   ],
   "triggers": {
-    // Runs daily at 03:00 UTC (05:00/06:00 Europe/Kyiv) to materialize today's recurring tasks
-    "crons": ["0 3 * * *"]
+    // Runs every 2 hours: materializes daily tasks + syncs Chess.com & Duolingo progress
+    "crons": ["0 */2 * * *"]
   },
   "vars": {
     "APP_ENV": "production",
@@ -38,7 +38,7 @@
         }
       ],
       "triggers": {
-        "crons": ["0 3 * * *"]
+        "crons": ["0 */2 * * *"]
       },
       "vars": {
         "APP_ENV": "staging",

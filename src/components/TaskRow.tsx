@@ -120,6 +120,12 @@ export function TaskRow({
       <div className="task-tags">
         {statusTag()}
         <span className="tag">{t.categories[task.category] ?? task.category}</span>
+        {task.externalSource === 'chess_com' && (
+          <span className="tag tag-source-chess">♟️ Chess.com</span>
+        )}
+        {task.externalSource === 'duolingo' && (
+          <span className="tag tag-source-duo">🦉 Duolingo</span>
+        )}
         {assignee.role === 'child' && (
           <span className="tag tag-xp">{format(t.xpHint, { xp: task.xpValue })}</span>
         )}
