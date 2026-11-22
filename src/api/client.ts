@@ -233,6 +233,8 @@ export const api = {
       minGamesPerDay?: number;
       minXpPerDay?: number;
       autoApproveTask?: boolean;
+      activityMode?: 'any_activity' | 'puzzles_or_games' | 'games_only';
+      streakBase?: number;
     },
   ) =>
     request<{

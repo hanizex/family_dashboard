@@ -7,6 +7,7 @@ interface ChessProfilePayload {
   username?: string;
   url?: string;
   avatar?: string;
+  last_online?: number;
 }
 
 interface ChessStatsPayload {
@@ -14,8 +15,29 @@ interface ChessStatsPayload {
   chess_blitz?: { last?: { rating?: number } };
   chess_bullet?: { last?: { rating?: number } };
   chess_daily?: { last?: { rating?: number } };
-  tactics?: { highest?: { rating?: number } };
-  puzzle_rush?: { best?: { score?: number } };
+  tactics?: {
+    highest?: { rating?: number; date?: number };
+    lowest?: { rating?: number; date?: number };
+  };
+  lessons?: {
+    highest?: { rating?: number; date?: number };
+    lowest?: { rating?: number; date?: number };
+  };
+  puzzle_rush?: { best?: { score?: number; total_attempts?: number } };
+}
+
+interface ChessCallbackStatEntry {
+  key?: string;
+  stats?: {
+    rating?: number;
+    highest_rating?: number;
+    total_attempts?: number;
+    last_date?: number;
+  };
+}
+
+interface ChessCallbackStatsPayload {
+  stats?: ChessCallbackStatEntry[];
 }
 
 interface ChessGameRecord {
@@ -60,7 +82,7 @@ export async function fetchChessStats(
 
   const encoded = encodeURIComponent(username);
 
-  // 1. Profile check (sequential to stay polite with Chess.com PubAPI rate limits)
+  // 1. Official profile check (includes `last_online` updated on puzzles, lessons, and games)
   const profileResp = await fetcher(`https://api.chess.com/pub/player/${encoded}`, {
     headers: chessHeaders(),
   });
@@ -72,7 +94,7 @@ export async function fetchChessStats(
   }
   const profile = (await profileResp.json()) as ChessProfilePayload;
 
-  // 2. Ratings & tactics stats
+  // 2. Official ratings & tactics stats
   const statsResp = await fetcher(`https://api.chess.com/pub/player/${encoded}/stats`, {
     headers: chessHeaders(),
   });
@@ -81,7 +103,58 @@ export async function fetchChessStats(
   }
   const statsData = (await statsResp.json()) as ChessStatsPayload;
 
-  // 3. Monthly games for current month (and previous month if we are in the first 6 days of a month)
+  // 3. Best-effort live puzzle stats from Chess.com public profile callback (gracefully ignored if unavailable)
+  let tacticsCurrent: number | null = null;
+  let puzzlesTotal: number | null = null;
+  let puzzleActiveToday = false;
+
+  try {
+    const cbResp = await fetcher(`https://www.chess.com/callback/member/stats/${encoded}`, {
+      headers: chessHeaders(),
+    });
+    if (cbResp.ok) {
+      const cbData = (await cbResp.json()) as ChessCallbackStatsPayload;
+      const tacticsEntry = cbData.stats?.find((entry) => entry.key === 'tactics');
+      if (tacticsEntry?.stats) {
+        if (typeof tacticsEntry.stats.rating === 'number') {
+          tacticsCurrent = tacticsEntry.stats.rating;
+        }
+        if (typeof tacticsEntry.stats.total_attempts === 'number') {
+          puzzlesTotal = tacticsEntry.stats.total_attempts;
+        }
+        if (typeof tacticsEntry.stats.last_date === 'number') {
+          const lastPuzzleDate = getTodayInTimezone(
+            timezone,
+            new Date(tacticsEntry.stats.last_date * 1000),
+          );
+          if (lastPuzzleDate === todayDate) {
+            puzzleActiveToday = true;
+          }
+        }
+      }
+    }
+  } catch {
+    // Ignore callback errors — official PubAPI still provides complete fallback
+  }
+
+  // Also detect puzzle/lesson record updates on official PubAPI timestamps
+  const officialActivityDates = [
+    statsData.tactics?.highest?.date,
+    statsData.tactics?.lowest?.date,
+    statsData.lessons?.highest?.date,
+  ];
+  for (const ts of officialActivityDates) {
+    if (typeof ts === 'number' && getTodayInTimezone(timezone, new Date(ts * 1000)) === todayDate) {
+      puzzleActiveToday = true;
+    }
+  }
+
+  const lastOnlineSec = typeof profile.last_online === 'number' ? profile.last_online : 0;
+  const lastOnlineAt = lastOnlineSec > 0 ? new Date(lastOnlineSec * 1000).toISOString() : null;
+  const activeToday =
+    lastOnlineSec > 0 && getTodayInTimezone(timezone, new Date(lastOnlineSec * 1000)) === todayDate;
+
+  // 4. Monthly games for current month (and previous month if we are in the first 6 days of a month)
   const [yearStr, monthStr, dayStr] = todayDate.split('-');
   const monthsToFetch: Array<[string, string]> = [[yearStr, monthStr]];
   if (Number(dayStr) <= 6) {
@@ -137,12 +210,19 @@ export async function fetchChessStats(
     blitzRating: statsData.chess_blitz?.last?.rating ?? null,
     bulletRating: statsData.chess_bullet?.last?.rating ?? null,
     dailyRating: statsData.chess_daily?.last?.rating ?? null,
+    tacticsCurrent,
     tacticsBest: statsData.tactics?.highest?.rating ?? null,
     puzzleRushBest: statsData.puzzle_rush?.best?.score ?? null,
     gamesToday,
     winsToday,
     gamesLast7d,
+    puzzlesToday: puzzleActiveToday ? 1 : 0,
+    puzzlesTotal,
+    puzzleActiveToday,
+    activeToday: activeToday || gamesToday > 0 || puzzleActiveToday,
+    lastOnlineAt,
     lastGameAt: latestEndSec > 0 ? new Date(latestEndSec * 1000).toISOString() : null,
     ratingDeltaToday: null,
+    streakDays: 0,
   };
 }

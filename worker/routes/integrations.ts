@@ -49,6 +49,8 @@ integrationRoutes.put('/:memberId/:provider', requireParent, async (c) => {
     minGamesPerDay: number;
     minXpPerDay: number;
     autoApproveTask: boolean;
+    activityMode: 'any_activity' | 'puzzles_or_games' | 'games_only';
+    streakBase: number;
     skipSync: boolean;
   }>(c);
 
@@ -61,24 +63,54 @@ integrationRoutes.put('/:memberId/:provider', requireParent, async (c) => {
     return c.json({ error: 'Username is required', code: 'INVALID_USERNAME' }, 400);
   }
 
-  const config: ExternalAccountConfig = {
-    minGamesPerDay:
-      typeof body.minGamesPerDay === 'number' && Number.isFinite(body.minGamesPerDay)
-        ? Math.max(1, Math.min(20, Math.round(body.minGamesPerDay)))
-        : 1,
-    minXpPerDay:
-      typeof body.minXpPerDay === 'number' && Number.isFinite(body.minXpPerDay)
-        ? Math.max(1, Math.min(500, Math.round(body.minXpPerDay)))
-        : 10,
-    autoApproveTask: body.autoApproveTask !== false,
-  };
-
-  const enabled = body.enabled === false ? 0 : 1;
   const existing = await c.env.DB.prepare(
     'SELECT * FROM external_accounts WHERE member_id = ? AND provider = ?',
   )
     .bind(memberId, provider)
     .first<ExternalAccountRow>();
+
+  let prevConfig: ExternalAccountConfig = {};
+  if (existing?.config_json) {
+    try {
+      prevConfig = JSON.parse(existing.config_json) as ExternalAccountConfig;
+    } catch {
+      prevConfig = {};
+    }
+  }
+
+  const today = getTodayInTimezone(c.env.FAMILY_TIMEZONE);
+  const validModes = new Set(['any_activity', 'puzzles_or_games', 'games_only']);
+  const activityMode =
+    body.activityMode && validModes.has(body.activityMode)
+      ? body.activityMode
+      : (prevConfig.activityMode ?? 'any_activity');
+
+  let streakBase = prevConfig.streakBase ?? 0;
+  let streakBaseDate = prevConfig.streakBaseDate ?? null;
+  if (typeof body.streakBase === 'number' && Number.isFinite(body.streakBase)) {
+    const nextStreak = Math.max(0, Math.min(10000, Math.round(body.streakBase)));
+    if (nextStreak !== streakBase || !streakBaseDate) {
+      streakBase = nextStreak;
+      streakBaseDate = nextStreak > 0 ? today : null;
+    }
+  }
+
+  const config: ExternalAccountConfig = {
+    minGamesPerDay:
+      typeof body.minGamesPerDay === 'number' && Number.isFinite(body.minGamesPerDay)
+        ? Math.max(1, Math.min(200, Math.round(body.minGamesPerDay)))
+        : (prevConfig.minGamesPerDay ?? 1),
+    minXpPerDay:
+      typeof body.minXpPerDay === 'number' && Number.isFinite(body.minXpPerDay)
+        ? Math.max(1, Math.min(5000, Math.round(body.minXpPerDay)))
+        : (prevConfig.minXpPerDay ?? 10),
+    autoApproveTask: body.autoApproveTask !== false,
+    activityMode,
+    streakBase,
+    streakBaseDate,
+  };
+
+  const enabled = body.enabled === false ? 0 : 1;
 
   if (existing) {
     const usernameChanged =
@@ -115,7 +147,6 @@ integrationRoutes.put('/:memberId/:provider', requireParent, async (c) => {
     });
   }
 
-  const today = getTodayInTimezone(c.env.FAMILY_TIMEZONE);
   const all = await listExternalAccountSummaries(c.env.DB, today);
   const matched = all.find((a) => a.memberId === memberId && a.provider === provider);
   return c.json({ account: matched, tasksVerified: 0 });
@@ -178,7 +209,9 @@ integrationRoutes.post('/:memberId/:provider/create-routine', requireParent, asy
 
   if (!existingTpl) {
     const isChess = provider === 'chess_com';
-    const title = isChess ? 'Зіграти партію на Chess.com' : 'Пройти урок у Duolingo';
+    const title = isChess
+      ? 'Потренуватися на Chess.com (задачі або партія)'
+      : 'Пройти урок у Duolingo';
     const description = isChess
       ? 'Перевіряється автоматично через Chess.com'
       : 'Перевіряється автоматично через Duolingo';

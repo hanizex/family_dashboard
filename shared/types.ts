@@ -119,11 +119,15 @@ export interface ScreenTimeProgress {
 }
 
 export type ExternalProvider = 'chess_com' | 'duolingo' | 'school';
+export type ChessActivityMode = 'any_activity' | 'puzzles_or_games' | 'games_only';
 
 export interface ExternalAccountConfig {
   minGamesPerDay?: number;
   minXpPerDay?: number;
   autoApproveTask?: boolean;
+  activityMode?: ChessActivityMode;
+  streakBase?: number;
+  streakBaseDate?: string | null;
 }
 
 export interface ChessStats {
@@ -134,13 +138,20 @@ export interface ChessStats {
   blitzRating: number | null;
   bulletRating: number | null;
   dailyRating: number | null;
+  tacticsCurrent: number | null;
   tacticsBest: number | null;
   puzzleRushBest: number | null;
   gamesToday: number;
   winsToday: number;
   gamesLast7d: number;
+  puzzlesToday: number;
+  puzzlesTotal: number | null;
+  puzzleActiveToday: boolean;
+  activeToday: boolean;
+  lastOnlineAt: string | null;
   lastGameAt: string | null;
   ratingDeltaToday: number | null;
+  streakDays: number;
 }
 
 export interface DuolingoCourseStat {

@@ -47,6 +47,9 @@ export function mapExternalAccount(
     minGamesPerDay: 1,
     minXpPerDay: 10,
     autoApproveTask: true,
+    activityMode: 'any_activity',
+    streakBase: 0,
+    streakBaseDate: null,
   });
 
   const statsRaw = parseJsonSafe<Record<string, unknown> | null>(row.last_stats_json, null);
@@ -61,6 +64,9 @@ export function mapExternalAccount(
       minGamesPerDay: config.minGamesPerDay ?? 1,
       minXpPerDay: config.minXpPerDay ?? 10,
       autoApproveTask: config.autoApproveTask !== false,
+      activityMode: config.activityMode ?? 'any_activity',
+      streakBase: config.streakBase ?? 0,
+      streakBaseDate: config.streakBaseDate ?? null,
     },
     lastSyncedAt: row.last_synced_at,
     lastError: row.last_error ?? null,
@@ -68,6 +74,56 @@ export function mapExternalAccount(
     chessStats: provider === 'chess_com' ? (statsRaw as ChessStats | null) : undefined,
     duolingoStats: provider === 'duolingo' ? (statsRaw as DuolingoStats | null) : undefined,
   };
+}
+
+async function computeChessStreak(
+  db: D1Database,
+  memberId: string,
+  todayDate: string,
+  goalMetToday: boolean,
+  streakBase: number,
+  streakBaseDate: string | null,
+): Promise<number> {
+  const snapsRes = await db
+    .prepare(
+      `SELECT snapshot_date, goal_met
+       FROM external_daily_snapshots
+       WHERE member_id = ? AND provider = 'chess_com' AND snapshot_date <= ?
+       ORDER BY snapshot_date DESC
+       LIMIT 365`,
+    )
+    .bind(memberId, todayDate)
+    .all<{ snapshot_date: string; goal_met: number }>();
+
+  const goalByDate = new Map<string, boolean>();
+  for (const s of snapsRes.results ?? []) {
+    goalByDate.set(s.snapshot_date, s.goal_met === 1);
+  }
+  if (goalMetToday) {
+    goalByDate.set(todayDate, true);
+  }
+
+  const prevDate = (dateStr: string): string => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10);
+  };
+
+  let cursor = goalMetToday ? todayDate : prevDate(todayDate);
+  let consecutive = 0;
+
+  while (true) {
+    if (streakBase > 0 && streakBaseDate && cursor === streakBaseDate) {
+      return consecutive + streakBase;
+    }
+    if (goalByDate.get(cursor)) {
+      consecutive += 1;
+      cursor = prevDate(cursor);
+    } else {
+      break;
+    }
+  }
+
+  return consecutive;
 }
 
 export async function listExternalAccountSummaries(
@@ -207,6 +263,9 @@ export async function syncExternalAccountRow(
     minGamesPerDay: 1,
     minXpPerDay: 10,
     autoApproveTask: true,
+    activityMode: 'any_activity',
+    streakBase: 0,
+    streakBaseDate: null,
   });
 
   const existingSnap = await env.DB.prepare(
@@ -230,8 +289,37 @@ export async function syncExternalAccountRow(
         stats.ratingDeltaToday = stats.rapidRating - baseline.rapidRating;
       }
 
-      const minGames = Math.max(1, config.minGamesPerDay ?? 1);
-      const goalMet = stats.gamesToday >= minGames;
+      if (stats.puzzlesTotal !== null && baseline.puzzlesTotal !== null) {
+        const puzzleDelta = Math.max(0, stats.puzzlesTotal - baseline.puzzlesTotal);
+        stats.puzzlesToday = Math.max(stats.puzzlesToday, puzzleDelta);
+      }
+      if (stats.puzzlesToday > 0) {
+        stats.puzzleActiveToday = true;
+        stats.activeToday = true;
+      }
+
+      const minCount = Math.max(1, config.minGamesPerDay ?? 1);
+      const mode = config.activityMode ?? 'any_activity';
+      const combinedCount = stats.gamesToday + stats.puzzlesToday;
+
+      let goalMet = false;
+      if (mode === 'games_only') {
+        goalMet = stats.gamesToday >= minCount;
+      } else if (mode === 'puzzles_or_games') {
+        goalMet = combinedCount >= minCount;
+      } else {
+        // any_activity: puzzles, games, or verified active on Chess.com today
+        goalMet = combinedCount >= minCount || stats.activeToday;
+      }
+
+      stats.streakDays = await computeChessStreak(
+        env.DB,
+        row.member_id,
+        todayDate,
+        goalMet,
+        config.streakBase ?? 0,
+        config.streakBaseDate ?? null,
+      );
 
       const statsJson = JSON.stringify(stats);
       await env.DB.prepare(
@@ -260,8 +348,24 @@ export async function syncExternalAccountRow(
 
       let tasksVerified = 0;
       if (goalMet) {
-        const ratingPart = stats.rapidRating ? `, Rapid ${stats.rapidRating}` : '';
-        const proofNote = `Chess.com: ${stats.gamesToday} парт. сьогодні (перемог: ${stats.winsToday}${ratingPart})`;
+        const parts: string[] = [];
+        if (stats.gamesToday > 0) {
+          parts.push(`${stats.gamesToday} парт.`);
+        }
+        if (stats.puzzlesToday > 0) {
+          parts.push(`${stats.puzzlesToday} задач`);
+        }
+        if (parts.length === 0 && stats.activeToday) {
+          parts.push('активність сьогодні (задачі / навчання)');
+        }
+        const puzzleRating = stats.tacticsCurrent ?? stats.tacticsBest;
+        const ratingPart = stats.rapidRating
+          ? `, Rapid ${stats.rapidRating}`
+          : puzzleRating
+            ? `, Задачі ${puzzleRating}`
+            : '';
+        const proofNote = `Chess.com: ${parts.join(' + ')}${ratingPart}`;
+
         tasksVerified = await autoVerifyLinkedTasks(
           env,
           row.member_id,

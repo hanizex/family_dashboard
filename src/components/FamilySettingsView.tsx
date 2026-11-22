@@ -11,6 +11,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import type {
+  ChessActivityMode,
   DevicePairCodeResponse,
   ExternalAccountSummary,
   Member,
@@ -27,7 +28,9 @@ interface FamilySettingsViewProps {
 
 interface IntegrationDraft {
   username: string;
-  goalValue: number;
+  goalValue: string;
+  streakBase: string;
+  activityMode: ChessActivityMode;
   autoApproveTask: boolean;
 }
 
@@ -67,12 +70,16 @@ export function FamilySettingsView({
         );
         initial[`${m.id}:chess_com`] = {
           username: chess?.externalUsername ?? '',
-          goalValue: chess?.config.minGamesPerDay ?? 1,
+          goalValue: String(chess?.config.minGamesPerDay ?? 1),
+          streakBase: chess?.config.streakBase ? String(chess.config.streakBase) : '',
+          activityMode: chess?.config.activityMode ?? 'any_activity',
           autoApproveTask: chess?.config.autoApproveTask !== false,
         };
         initial[`${m.id}:duolingo`] = {
           username: duo?.externalUsername ?? '',
-          goalValue: duo?.config.minXpPerDay ?? 10,
+          goalValue: String(duo?.config.minXpPerDay ?? 10),
+          streakBase: '',
+          activityMode: 'any_activity',
           autoApproveTask: duo?.config.autoApproveTask !== false,
         };
       }
@@ -112,7 +119,9 @@ export function FamilySettingsView({
       [key]: {
         ...(prev[key] ?? {
           username: '',
-          goalValue: provider === 'chess_com' ? 1 : 10,
+          goalValue: provider === 'chess_com' ? '1' : '10',
+          streakBase: '',
+          activityMode: 'any_activity',
           autoApproveTask: true,
         }),
         ...patch,
@@ -170,13 +179,25 @@ export function FamilySettingsView({
     const draft = integrationDrafts[key];
     if (!draft?.username.trim()) return;
 
+    const parsedGoal = Math.max(
+      1,
+      Number.parseInt(draft.goalValue, 10) || (provider === 'chess_com' ? 1 : 10),
+    );
+    const parsedStreak = Math.max(0, Number.parseInt(draft.streakBase, 10) || 0);
+
     setSavingIntegrationKey(key);
     try {
       const res = await api.saveIntegration(memberId, provider, {
         username: draft.username.trim(),
-        minGamesPerDay: provider === 'chess_com' ? draft.goalValue : undefined,
-        minXpPerDay: provider === 'duolingo' ? draft.goalValue : undefined,
+        minGamesPerDay: provider === 'chess_com' ? parsedGoal : undefined,
+        minXpPerDay: provider === 'duolingo' ? parsedGoal : undefined,
+        activityMode: provider === 'chess_com' ? draft.activityMode : undefined,
+        streakBase: provider === 'chess_com' ? parsedStreak : undefined,
         autoApproveTask: draft.autoApproveTask,
+      });
+      updateIntDraft(memberId, provider, {
+        goalValue: String(parsedGoal),
+        streakBase: parsedStreak > 0 ? String(parsedStreak) : '',
       });
       await onRefresh();
       if (res.account.lastError) {
@@ -371,12 +392,16 @@ export function FamilySettingsView({
             const duoKey = `${member.id}:duolingo`;
             const chessDraft = integrationDrafts[chessKey] ?? {
               username: chessAcc?.externalUsername ?? '',
-              goalValue: chessAcc?.config.minGamesPerDay ?? 1,
+              goalValue: String(chessAcc?.config.minGamesPerDay ?? 1),
+              streakBase: chessAcc?.config.streakBase ? String(chessAcc.config.streakBase) : '',
+              activityMode: chessAcc?.config.activityMode ?? 'any_activity',
               autoApproveTask: chessAcc?.config.autoApproveTask !== false,
             };
             const duoDraft = integrationDrafts[duoKey] ?? {
               username: duoAcc?.externalUsername ?? '',
-              goalValue: duoAcc?.config.minXpPerDay ?? 10,
+              goalValue: String(duoAcc?.config.minXpPerDay ?? 10),
+              streakBase: '',
+              activityMode: 'any_activity' as ChessActivityMode,
               autoApproveTask: duoAcc?.config.autoApproveTask !== false,
             };
 
@@ -400,7 +425,7 @@ export function FamilySettingsView({
                     )}
                   </div>
 
-                  <div className="form-grid-2">
+                  <div className="field" style={{ gap: '4px' }}>
                     <input
                       className="input"
                       value={chessDraft.username}
@@ -409,24 +434,66 @@ export function FamilySettingsView({
                       }
                       placeholder={t.chessUsernamePlaceholder}
                     />
+                  </div>
+
+                  <div className="field" style={{ gap: '3px' }}>
+                    <label className="field-label" style={{ fontSize: '11.5px' }}>
+                      {t.chessModeLabel}
+                    </label>
+                    <select
+                      className="select"
+                      value={chessDraft.activityMode}
+                      onChange={(e) =>
+                        updateIntDraft(member.id, 'chess_com', {
+                          activityMode: e.target.value as ChessActivityMode,
+                        })
+                      }
+                    >
+                      <option value="any_activity">{t.chessModes.any_activity}</option>
+                      <option value="puzzles_or_games">{t.chessModes.puzzles_or_games}</option>
+                      <option value="games_only">{t.chessModes.games_only}</option>
+                    </select>
+                  </div>
+
+                  <div className="form-grid-2">
                     <div className="field" style={{ gap: '3px' }}>
                       <label className="field-label" style={{ fontSize: '11.5px' }}>
                         {t.minGamesLabel}
                       </label>
                       <input
-                        type="number"
-                        min={1}
-                        max={20}
+                        type="text"
+                        inputMode="numeric"
                         className="input"
                         value={chessDraft.goalValue}
                         onChange={(e) =>
                           updateIntDraft(member.id, 'chess_com', {
-                            goalValue: Math.max(1, Number(e.target.value) || 1),
+                            goalValue: e.target.value.replace(/[^0-9]/g, ''),
                           })
                         }
+                        placeholder="1"
+                      />
+                    </div>
+                    <div className="field" style={{ gap: '3px' }}>
+                      <label className="field-label" style={{ fontSize: '11.5px' }}>
+                        {t.chessStreakBaseLabel}
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        className="input"
+                        value={chessDraft.streakBase}
+                        onChange={(e) =>
+                          updateIntDraft(member.id, 'chess_com', {
+                            streakBase: e.target.value.replace(/[^0-9]/g, ''),
+                          })
+                        }
+                        placeholder="0"
                       />
                     </div>
                   </div>
+                  <p style={{ fontSize: '11.5px', color: 'var(--ink-muted)' }}>
+                    {t.chessStreakHint}
+                  </p>
 
                   <label className="toggle-row" style={{ padding: '7px 10px', fontSize: '12.5px' }}>
                     <input
@@ -443,19 +510,40 @@ export function FamilySettingsView({
 
                   {chessAcc?.chessStats && (
                     <div className="integration-stat-line">
+                      {chessAcc.chessStats.streakDays > 0 && (
+                        <span className="tag tag-status-approved">
+                          🔥 {format(t.chessStreak, { n: chessAcc.chessStats.streakDays })}
+                        </span>
+                      )}
+                      {chessAcc.chessStats.puzzlesToday > 0 && (
+                        <span className="tag tag-status-approved">
+                          {format(t.chessTodayPuzzles, { n: chessAcc.chessStats.puzzlesToday })}
+                        </span>
+                      )}
+                      {chessAcc.chessStats.gamesToday > 0 && (
+                        <span className="tag">
+                          {format(t.chessTodayGames, { n: chessAcc.chessStats.gamesToday })}
+                        </span>
+                      )}
+                      {chessAcc.chessStats.activeToday &&
+                        chessAcc.chessStats.puzzlesToday === 0 &&
+                        chessAcc.chessStats.gamesToday === 0 && (
+                          <span className="tag tag-status-approved">{t.chessActiveToday}</span>
+                        )}
                       {chessAcc.chessStats.rapidRating && (
                         <span className="tag tag-source-chess">
                           {format(t.chessRating, { rating: chessAcc.chessStats.rapidRating })}
                         </span>
                       )}
-                      {chessAcc.chessStats.tacticsBest && (
+                      {(chessAcc.chessStats.tacticsCurrent ?? chessAcc.chessStats.tacticsBest) && (
                         <span className="tag">
-                          {format(t.chessPuzzles, { rating: chessAcc.chessStats.tacticsBest })}
+                          {format(t.chessPuzzles, {
+                            rating:
+                              chessAcc.chessStats.tacticsCurrent ??
+                              chessAcc.chessStats.tacticsBest!,
+                          })}
                         </span>
                       )}
-                      <span className="tag">
-                        {format(t.chessTodayGames, { n: chessAcc.chessStats.gamesToday })}
-                      </span>
                     </div>
                   )}
 
@@ -528,17 +616,16 @@ export function FamilySettingsView({
                         {t.minXpLabel}
                       </label>
                       <input
-                        type="number"
-                        min={1}
-                        max={500}
-                        step={5}
+                        type="text"
+                        inputMode="numeric"
                         className="input"
                         value={duoDraft.goalValue}
                         onChange={(e) =>
                           updateIntDraft(member.id, 'duolingo', {
-                            goalValue: Math.max(1, Number(e.target.value) || 10),
+                            goalValue: e.target.value.replace(/[^0-9]/g, ''),
                           })
                         }
+                        placeholder="10"
                       />
                     </div>
                   </div>

@@ -246,4 +246,92 @@ describe('Chess.com & Duolingo Integrations (Phase 3A)', () => {
     const syncRes = await syncAllExternalAccounts(env, { force: true, fetcher: notFoundFetch });
     expect(syncRes.accounts[0]?.lastError).toBe('DUOLINGO_USER_NOT_FOUND');
   });
+
+  it('counts Chess.com puzzles / daily activity and preserves custom 223-day streak', async () => {
+    const { app, env } = setupEnv();
+    const parentCookie = await loginAs(app, env, 'parent-1');
+    const today = getTodayInTimezone('Europe/Kyiv');
+
+    const saveRes = await app.request(
+      '/api/integrations/parent-1/chess_com',
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Cookie: parentCookie },
+        body: JSON.stringify({
+          username: 'mykola_puzzles',
+          minGamesPerDay: 1,
+          activityMode: 'any_activity',
+          streakBase: 223,
+          autoApproveTask: true,
+          skipSync: true,
+        }),
+      },
+      env,
+    );
+    expect(saveRes.status).toBe(200);
+
+    const taskRes = await app.request(
+      '/api/tasks',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Cookie: parentCookie },
+        body: JSON.stringify({
+          assigneeId: 'parent-1',
+          taskDate: today,
+          title: 'Задачі Chess.com',
+          isMandatory: false,
+          externalSource: 'chess_com',
+        }),
+      },
+      env,
+    );
+    const { task } = (await taskRes.json()) as { task: TaskItem };
+
+    const nowSec = Math.floor(Date.now() / 1000);
+    const puzzleOnlyFetch: typeof fetch = async (input) => {
+      const url = String(input);
+      if (url.endsWith('/pub/player/mykola_puzzles')) {
+        return new Response(
+          JSON.stringify({ username: 'mykola_puzzles', last_online: nowSec - 60 }),
+          { status: 200 },
+        );
+      }
+      if (url.endsWith('/pub/player/mykola_puzzles/stats')) {
+        return new Response(
+          JSON.stringify({ tactics: { highest: { rating: 2150, date: nowSec - 60 } } }),
+          { status: 200 },
+        );
+      }
+      if (url.includes('/callback/member/stats/')) {
+        return new Response(
+          JSON.stringify({
+            stats: [
+              {
+                key: 'tactics',
+                stats: { rating: 2120, total_attempts: 950, last_date: nowSec - 60 },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes('/games/')) {
+        return new Response(JSON.stringify({ games: [] }), { status: 200 });
+      }
+      return new Response('Not found', { status: 404 });
+    };
+
+    const sync = await syncAllExternalAccounts(env, { force: true, fetcher: puzzleOnlyFetch });
+    expect(sync.tasksVerified).toBe(1);
+    expect(sync.accounts[0]?.goalMetToday).toBe(true);
+    expect(sync.accounts[0]?.chessStats?.gamesToday).toBe(0);
+    expect(sync.accounts[0]?.chessStats?.puzzlesToday).toBeGreaterThanOrEqual(1);
+    expect(sync.accounts[0]?.chessStats?.streakDays).toBe(223);
+
+    const updatedTask = await env.DB.prepare('SELECT status, report_note FROM tasks WHERE id = ?')
+      .bind(task.id)
+      .first<{ status: string; report_note: string }>();
+    expect(updatedTask?.status).toBe('approved');
+    expect(updatedTask?.report_note).toContain('задач');
+  });
 });

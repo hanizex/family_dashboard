@@ -93,6 +93,27 @@ export function MemberColumn({
             if (acc.provider === 'chess_com') {
               const s = acc.chessStats;
               const bestRating = s?.rapidRating ?? s?.blitzRating ?? s?.dailyRating ?? null;
+              const puzzleRating = s?.tacticsCurrent ?? s?.tacticsBest ?? null;
+              const parts: string[] = [];
+              if (s) {
+                if (s.streakDays > 0) {
+                  parts.push(`🔥 ${format(t.chessStreak, { n: s.streakDays })}`);
+                }
+                if (s.puzzlesToday > 0) {
+                  parts.push(format(t.chessTodayPuzzles, { n: s.puzzlesToday }));
+                } else if (s.gamesToday > 0) {
+                  parts.push(format(t.chessTodayGames, { n: s.gamesToday }));
+                } else if (s.activeToday) {
+                  parts.push(t.chessActiveToday);
+                } else {
+                  parts.push(format(t.chessTodayGames, { n: 0 }));
+                }
+                if (puzzleRating && !bestRating) {
+                  parts.push(format(t.chessPuzzles, { rating: puzzleRating }));
+                } else if (bestRating) {
+                  parts.push(format(t.chessRating, { rating: bestRating }));
+                }
+              }
               return (
                 <a
                   key={acc.id}
@@ -106,10 +127,7 @@ export function MemberColumn({
                   <span>♟️</span>
                   {s ? (
                     <>
-                      <span>
-                        {bestRating ? `${format(t.chessRating, { rating: bestRating })} · ` : ''}
-                        {format(t.chessTodayGames, { n: s.gamesToday })}
-                      </span>
+                      <span>{parts.join(' · ')}</span>
                       {acc.goalMetToday && <CheckCircle2 size={13} />}
                     </>
                   ) : (
